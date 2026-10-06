@@ -8,7 +8,12 @@ import Reveal from './ui/Reveal.astro';
 import RichText from './ui/RichText.astro';
 ---
 
-<section id={SECTION_IDS.audience} aria-labelledby="audience-heading" class="section-y">
+<section id={SECTION_IDS.audience} aria-labelledby="audience-heading" class="audience section-y relative isolate overflow-clip">
+  <!-- Soft colour behind the glass so the blur has something to pick up. -->
+  <div class="blob blob-a" aria-hidden="true"></div>
+  <div class="blob blob-b" aria-hidden="true"></div>
+  <div class="blob blob-c" aria-hidden="true"></div>
+
   <div class="page">
     <Reveal class="mx-auto max-w-[44rem] text-center">
       <h2 id="audience-heading" class="text-h2">
@@ -17,18 +22,333 @@ import RichText from './ui/RichText.astro';
       <p class="mt-6 text-body">{audience.body}</p>
     </Reveal>
 
-    <Reveal as="ul" stagger class="mt-12 grid gap-4 sm:grid-cols-2 lg:mt-14 lg:grid-cols-4 lg:gap-5">
-      {
-        audience.cards.map((card) => (
-          <li class="glass-flat flex flex-col items-center rounded-card p-6 text-center sm:p-7">
-            <IconTile icon={icons[card.icon]} size={96} />
-            <h3 class="mt-5 text-h3">{card.title}</h3>
-            <p class="mt-2 text-[1rem] leading-relaxed text-slate">
-              <RichText segments={card.body} />
-            </p>
-          </li>
-        ))
-      }
+    <Reveal class="mt-10 lg:mt-12">
+      <div role="group" aria-roledescription="carousel" aria-label="Who Verdicta and Veritune are built for">
+        <ul class="wheel" data-wheel tabindex="0" aria-label="Industries. Drag, swipe or use the arrow keys.">
+          {
+            audience.cards.map((card) => (
+              <li class="gcard rounded-card" data-wcard>
+                <IconTile icon={icons[card.icon]} size={80} />
+                <h3 class="mt-4 text-h3">{card.title}</h3>
+                <p class="mt-1.5 text-[0.9375rem] leading-relaxed text-slate">
+                  <RichText segments={card.body} />
+                </p>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="controls">
+          <button type="button" class="nav-btn" data-wprev aria-label="Previous industry">
+            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 6 10l6 6"></path></svg>
+          </button>
+          <div class="dots">
+            {
+              audience.cards.map((card) => (
+                <button type="button" class="dot" data-wdot aria-label={`Show ${card.title}`}></button>
+              ))
+            }
+          </div>
+          <button type="button" class="nav-btn" data-wnext aria-label="Next industry">
+            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 4 6 6-6 6"></path></svg>
+          </button>
+        </div>
+      </div>
     </Reveal>
   </div>
 </section>
+
+<style>
+  .blob {
+    position: absolute;
+    z-index: -1;
+    border-radius: 999px;
+    filter: blur(60px);
+    pointer-events: none;
+  }
+  .blob-a {
+    width: 26rem;
+    height: 26rem;
+    left: 6%;
+    top: 34%;
+    background: color-mix(in srgb, var(--color-aqua) 55%, white);
+    opacity: 0.55;
+  }
+  .blob-b {
+    width: 24rem;
+    height: 24rem;
+    right: 8%;
+    top: 40%;
+    background: color-mix(in srgb, var(--color-sky) 60%, white);
+    opacity: 0.55;
+  }
+  .blob-c {
+    width: 20rem;
+    height: 20rem;
+    left: 40%;
+    top: 55%;
+    background: color-mix(in srgb, var(--color-haze) 70%, white);
+    opacity: 0.5;
+  }
+
+  .wheel {
+    position: relative;
+    height: 22rem; /* refined by script once card sizes are known */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    touch-action: pan-y;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    outline-offset: 4px;
+  }
+  .wheel:active {
+    cursor: grabbing;
+  }
+
+  /* Glass card: frosted fill, bright rim, soft depth. */
+  .gcard {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: min(19rem, 72vw);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem 1.25rem 1.375rem;
+    text-align: center;
+    background: linear-gradient(
+      155deg,
+      rgb(255 255 255 / 0.62),
+      rgb(255 255 255 / 0.28) 55%,
+      rgb(255 255 255 / 0.4)
+    );
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgb(255 255 255 / 0.8);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      inset 0 -1px 0 rgb(255 255 255 / 0.25),
+      0 22px 50px -12px color-mix(in srgb, var(--color-ink) 22%, transparent),
+      0 2px 6px color-mix(in srgb, var(--color-ink) 6%, transparent);
+    transform-origin: 50% 100%;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .gcard {
+      background: color-mix(in srgb, white 82%, var(--color-frost));
+    }
+  }
+
+  .controls {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .dots {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .dot {
+    position: relative;
+    height: 0.5rem;
+    width: 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-slate) 30%, transparent);
+    transition:
+      width 0.3s var(--ease-out-soft),
+      background-color 0.3s var(--ease-out-soft);
+  }
+  .dot::after {
+    content: '';
+    position: absolute;
+    inset: -0.75rem -0.25rem;
+  }
+  .dot[aria-current='true'] {
+    width: 1.5rem;
+    background: var(--color-ink);
+  }
+  .nav-btn {
+    display: grid;
+    place-items: center;
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 999px;
+    color: var(--color-ink);
+    background: rgb(255 255 255 / 0.7);
+    border: 1px solid rgb(255 255 255 / 0.9);
+    box-shadow: var(--shadow-glass);
+    transition: transform 0.2s var(--ease-out-soft);
+  }
+  .nav-btn:hover {
+    transform: translateY(-1px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dot {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const wheel = document.querySelector<HTMLElement>('[data-wheel]');
+  if (wheel) {
+    const cards = Array.from(wheel.querySelectorAll<HTMLElement>('[data-wcard]'));
+    const dots = Array.from(document.querySelectorAll<HTMLElement>('[data-wdot]'));
+    const n = cards.length;
+    const STEP = 24; // degrees between neighbouring cards on the ring
+    const RADIUS = 0.9; // ring radius as a share of the stage width
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let pos = 0; // fractional index of the card at the front
+    let target = 0;
+    let raf = 0;
+    let width = wheel.clientWidth;
+    let dragging = false;
+    let locked = false;
+    let startX = 0;
+    let startY = 0;
+    let startPos = 0;
+    let lastX = 0;
+    let lastT = 0;
+    let velocity = 0; // cards per ms
+
+    const mod = (a: number) => ((a % n) + n) % n;
+    const spacing = () => Math.max(120, width * RADIUS * Math.sin((STEP * Math.PI) / 180));
+
+    // Stage must be tall enough for the tallest card plus how far the side cards drop.
+    const fit = () => {
+      width = wheel.clientWidth;
+      const tallest = Math.max(...cards.map((c) => c.offsetHeight));
+      const drop = width * RADIUS * (1 - Math.cos((STEP * Math.PI) / 180));
+      const sideReach = Math.sin((STEP * Math.PI) / 180) * 160; // tilted card corner dips lower
+      wheel.style.height = `${Math.ceil(tallest + drop + sideReach)}px`;
+    };
+
+    const layout = () => {
+      const R = width * RADIUS;
+      cards.forEach((card, i) => {
+        // Signed distance from the front, wrapped into (-n/2, n/2].
+        let d = mod(i - pos);
+        if (d > n / 2) d -= n;
+        const ad = Math.abs(d);
+        const a = (d * STEP * Math.PI) / 180;
+        const x = R * Math.sin(a);
+        const y = R * (1 - Math.cos(a));
+        const scale = Math.max(0.7, 1 - 0.07 * ad);
+        // Cards past one slot away fade so the hidden one never pops in.
+        const opacity = ad <= 1 ? 1 - 0.3 * ad : Math.max(0, 0.7 - (ad - 1) * 1.4);
+        card.style.transform = `translate3d(calc(-50% + ${x.toFixed(1)}px), ${y.toFixed(1)}px, 0) rotate(${(d * STEP).toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+        card.style.opacity = opacity.toFixed(3);
+        card.style.zIndex = String(100 - Math.round(ad * 10));
+        card.style.pointerEvents = ad > 1.2 ? 'none' : '';
+        card.toggleAttribute('aria-current', ad < 0.5);
+      });
+      const front = mod(Math.round(pos));
+      dots.forEach((dot, i) => {
+        if (i === front) dot.setAttribute('aria-current', 'true');
+        else dot.removeAttribute('aria-current');
+      });
+    };
+
+    const tick = () => {
+      const diff = target - pos;
+      if (Math.abs(diff) < 0.001) {
+        pos = target;
+        raf = 0;
+      } else {
+        pos += diff * 0.14;
+        raf = requestAnimationFrame(tick);
+      }
+      layout();
+    };
+    const animateTo = (t: number) => {
+      target = t;
+      if (reduce) {
+        pos = t;
+        layout();
+        return;
+      }
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    const goBy = (k: number) => animateTo(Math.round(target) + k);
+    const goTo = (i: number) => {
+      // Shortest way around the ring.
+      let diff = i - mod(Math.round(target));
+      if (diff > n / 2) diff -= n;
+      if (diff < -n / 2) diff += n;
+      animateTo(Math.round(target) + diff);
+    };
+
+    wheel.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      locked = false;
+      startX = lastX = e.clientX;
+      startY = e.clientY;
+      startPos = pos;
+      lastT = performance.now();
+      velocity = 0;
+    });
+    wheel.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      if (!locked) {
+        if (Math.abs(dx) < 6) return;
+        if (Math.abs(e.clientY - startY) > Math.abs(dx)) {
+          dragging = false; // vertical gesture: let the page scroll
+          return;
+        }
+        locked = true;
+        wheel.setPointerCapture(e.pointerId);
+        if (raf) cancelAnimationFrame(raf);
+        raf = 0;
+      }
+      const now = performance.now();
+      const dt = Math.max(1, now - lastT);
+      velocity = (-(e.clientX - lastX) / spacing()) / dt;
+      lastX = e.clientX;
+      lastT = now;
+      pos = startPos - dx / spacing();
+      target = pos;
+      layout();
+    });
+    const end = () => {
+      if (!dragging) return;
+      dragging = false;
+      if (!locked) return;
+      animateTo(Math.round(pos + velocity * 160));
+    };
+    wheel.addEventListener('pointerup', end);
+    wheel.addEventListener('pointercancel', end);
+
+    wheel.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        goBy(1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goBy(-1);
+      }
+    });
+    document.querySelector('[data-wprev]')?.addEventListener('click', () => goBy(-1));
+    document.querySelector('[data-wnext]')?.addEventListener('click', () => goBy(1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+
+    let lastW = 0;
+    new ResizeObserver(() => {
+      if (wheel.clientWidth === lastW) return; // height changes come from fit()
+      lastW = wheel.clientWidth;
+      fit();
+      layout();
+    }).observe(wheel);
+
+    fit();
+    layout();
+  }
+</script>

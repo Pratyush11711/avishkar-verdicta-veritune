@@ -191,6 +191,87 @@
   box-shadow: var(--shadow-glass);
 }
 
+/*
+  Liquid glass pane. Fill stays light but opaque enough to read as a card
+  on the frost page; the rim, sheen, and edge glint sit on top of it.
+*/
+.liquid-glass {
+  --lg-tint: var(--color-aqua);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.92), rgb(255 255 255 / 0.78));
+  border: 1px solid rgb(255 255 255 / 0.95);
+  box-shadow:
+    0 8px 32px rgb(22 33 58 / 0.08),
+    0 2px 8px rgb(22 33 58 / 0.05),
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    inset 0 -1px 0 rgb(255 255 255 / 0.35);
+  -webkit-backdrop-filter: blur(25px) saturate(1.8);
+  backdrop-filter: blur(25px) saturate(1.8);
+}
+
+.liquid-glass > * {
+  position: relative;
+  z-index: 1;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    color-mix(in srgb, var(--lg-tint) 80%, white) 60deg,
+    color-mix(in srgb, var(--lg-tint) 55%, transparent) 120deg,
+    transparent 180deg,
+    color-mix(in srgb, var(--lg-tint) 40%, transparent) 240deg,
+    transparent 360deg
+  );
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.liquid-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, transparent, rgb(255 255 255 / 0.9), transparent),
+    linear-gradient(180deg, rgb(255 255 255 / 0.55), transparent 50%),
+    linear-gradient(135deg, rgb(255 255 255 / 0.5) 0%, rgb(255 255 255 / 0.12) 50%, transparent 100%);
+  background-size:
+    calc(100% - 1.25rem) 2px,
+    2px 100%,
+    100% 60%;
+  background-position:
+    top 0.625rem center,
+    left top,
+    top;
+  background-repeat: no-repeat;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .liquid-glass {
+    background: color-mix(in srgb, white 88%, var(--color-frost));
+  }
+}
+
 @utility sr-only-focusable {
   position: absolute;
   width: 1px;

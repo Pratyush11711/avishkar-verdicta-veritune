@@ -34,9 +34,9 @@ const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
             <li>
               <a
                 href={l.href}
-                class="inline-flex min-h-11 items-center rounded-full text-[0.9375rem] font-medium text-ink underline-offset-4 hover:underline sm:px-3"
+                class="footer-link inline-flex min-h-11 items-center rounded-full text-[0.9375rem] font-medium text-ink sm:px-3"
               >
-                {l.label}
+                <span class="center-underline">{l.label}</span>
               </a>
             </li>
           ))
@@ -53,8 +53,8 @@ const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
           <ul class="flex gap-5">
             {LEGAL_LINKS.map((l) => (
               <li>
-                <a href={l.href} class="inline-flex min-h-11 items-center hover:underline">
-                  {l.label}
+                <a href={l.href} class="footer-link inline-flex min-h-11 items-center">
+                  <span class="center-underline">{l.label}</span>
                 </a>
               </li>
             ))}
@@ -64,3 +64,34 @@ const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
     </div>
   </div>
 </footer>
+
+<style>
+  /* Center underline (Daniel Petho): a bar under the label grows from the middle. */
+  .center-underline {
+    position: relative;
+    display: inline-block;
+  }
+
+  .center-underline::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -0.01em;
+    width: 0;
+    height: 0.1em;
+    background: currentColor;
+    transform: translateX(-50%);
+    transition: width 250ms ease-in-out;
+  }
+
+  .footer-link:hover .center-underline::after,
+  .footer-link:focus-visible .center-underline::after {
+    width: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .center-underline::after {
+      transition: none;
+    }
+  }
+</style>

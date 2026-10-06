@@ -17,29 +17,56 @@ import RichText from './ui/RichText.astro';
       </h2>
     </Reveal>
 
-    <Reveal as="ol" stagger class="mt-12 grid gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-5">
-      {
-        pilot.steps.map((step, i) => (
-          <li class="glass-flat flex flex-col rounded-card p-6 sm:p-7">
-            <div class="flex items-start justify-between">
-              <IconTile icon={icons[step.icon]} size={88} />
-              <span class="label-mono text-slate" aria-hidden="true">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-            </div>
-            <h3 class="mt-6 text-h3">
-              <span class="sr-only">Step {i + 1}: </span>
-              {step.title}
-            </h3>
-            <p class="mt-2.5 text-[1rem] leading-relaxed text-slate">
-              <RichText segments={step.body} />
-            </p>
-          </li>
-        ))
-      }
+    <Reveal class="mt-12 lg:mt-16">
+      <div
+        class="stack-wrap mx-auto w-full max-w-[44rem]"
+        role="group"
+        aria-roledescription="carousel"
+        aria-label="How the pilot works"
+      >
+        <ol class="stack" data-stack tabindex="0" aria-label="Pilot steps. Drag, swipe or use the arrow keys.">
+          {
+            pilot.steps.map((step, i) => (
+              <li class="card rounded-card" data-card data-pos={i === 0 ? '0' : i > 2 ? 'far' : String(i)}>
+                <IconTile icon={icons[step.icon]} size={72} class="card-icon" />
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-baseline justify-between gap-4">
+                    <h3 class="text-h3">
+                      <span class="sr-only">Step {i + 1}: </span>
+                      {step.title}
+                    </h3>
+                    <span class="label-mono shrink-0 text-slate" aria-hidden="true">
+                      {String(i + 1).padStart(2, '0')} / {String(pilot.steps.length).padStart(2, '0')}
+                    </span>
+                  </div>
+                  <p class="mt-1.5 text-[0.9375rem] leading-relaxed text-slate">
+                    <RichText segments={step.body} />
+                  </p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+
+        <div class="controls" data-controls>
+          <button type="button" class="nav-btn" data-prev aria-label="Previous step">
+            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 6 10l6 6"></path></svg>
+          </button>
+          <div class="dots">
+            {
+              pilot.steps.map((step, i) => (
+                <button type="button" class="dot" data-dot aria-label={`Go to step ${i + 1}`} aria-current={i === 0 ? 'true' : undefined}></button>
+              ))
+            }
+          </div>
+          <button type="button" class="nav-btn" data-next aria-label="Next step">
+            <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 4 6 6-6 6"></path></svg>
+          </button>
+        </div>
+      </div>
     </Reveal>
 
-    <Reveal class="mt-12 flex flex-col items-center gap-6 text-center lg:mt-14">
+    <Reveal class="mt-10 flex flex-col items-center gap-6 text-center lg:mt-12">
       <Button href={PILOT_CTA_HREF} icon="arrow-right">{pilot.button}</Button>
       <p class="max-w-[64ch] text-[0.9375rem] leading-relaxed text-slate">
         <RichText segments={pilot.note} />
@@ -47,3 +74,242 @@ import RichText from './ui/RichText.astro';
     </Reveal>
   </div>
 </section>
+
+<style>
+  /* Cards share one grid cell, so the stack is as tall as the tallest card. */
+  .stack {
+    display: grid;
+    padding-bottom: 2.25rem; /* room for the two cards peeking out below */
+    touch-action: pan-y;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    list-style: none;
+    margin: 0;
+  }
+  .stack:active {
+    cursor: grabbing;
+  }
+  .stack:focus-visible {
+    outline-offset: 6px;
+    border-radius: var(--radius-card);
+  }
+
+  .card {
+    grid-area: 1 / 1;
+    /* Equal heights so the cards behind line up exactly with the front one. */
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    gap: 1.125rem;
+    padding: 1rem 1.25rem;
+    /* Opaque enough that cards behind never show through the front one. */
+    background: color-mix(in srgb, white 90%, var(--color-frost));
+    border: 1px solid rgb(255 255 255 / 0.9);
+    box-shadow: var(--shadow-glass-strong);
+    transform-origin: 50% 100%;
+    transition:
+      transform 0.55s var(--ease-out-soft),
+      opacity 0.45s var(--ease-out-soft);
+    will-change: transform;
+  }
+  .card.dragging {
+    transition: none;
+  }
+  /* Only the front card shows its content; the ones behind read as glass edges. */
+  .card > * {
+    transition: opacity 0.35s var(--ease-out-soft);
+  }
+  .card:not([data-pos='0']) > * {
+    opacity: 0;
+  }
+
+  .card[data-pos='0'] {
+    transform: none;
+    opacity: 1;
+    z-index: 4;
+  }
+  .card[data-pos='1'] {
+    transform: translateY(1rem) scale(0.95);
+    opacity: 0.75;
+    z-index: 3;
+  }
+  .card[data-pos='2'] {
+    transform: translateY(2rem) scale(0.9);
+    opacity: 0.45;
+    z-index: 2;
+  }
+  .card[data-pos='far'] {
+    transform: translateY(2rem) scale(0.85);
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .card[data-pos='out'] {
+    transform: translateX(-60%) rotate(-6deg) scale(0.95);
+    opacity: 0;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .controls {
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .dots {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .dot {
+    height: 0.5rem;
+    width: 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-slate) 30%, transparent);
+    transition:
+      width 0.3s var(--ease-out-soft),
+      background-color 0.3s var(--ease-out-soft);
+    /* Larger hit area without changing the visible dot. */
+    position: relative;
+  }
+  .dot::after {
+    content: '';
+    position: absolute;
+    inset: -0.75rem -0.25rem;
+  }
+  .dot[aria-current='true'] {
+    width: 1.5rem;
+    background: var(--color-ink);
+  }
+  .nav-btn {
+    display: grid;
+    place-items: center;
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 999px;
+    color: var(--color-ink);
+    background: rgb(255 255 255 / 0.7);
+    border: 1px solid rgb(255 255 255 / 0.9);
+    box-shadow: var(--shadow-glass);
+    transition:
+      opacity 0.2s,
+      transform 0.2s var(--ease-out-soft);
+  }
+  .nav-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .nav-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  @media (max-width: 479px) {
+    .card {
+      gap: 0.875rem;
+      padding: 0.875rem 1rem;
+    }
+    .card :global(.card-icon) {
+      width: 56px !important;
+      height: 56px !important;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card,
+    .dot {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const stack = document.querySelector<HTMLElement>('[data-stack]');
+  if (stack) {
+    const cards = Array.from(stack.querySelectorAll<HTMLElement>('[data-card]'));
+    const dots = Array.from(document.querySelectorAll<HTMLElement>('[data-dot]'));
+    const prev = document.querySelector<HTMLButtonElement>('[data-prev]');
+    const next = document.querySelector<HTMLButtonElement>('[data-next]');
+    const THRESHOLD = 60;
+    let active = 0;
+    let startX = 0;
+    let startY = 0;
+    let dx = 0;
+    let dragging = false;
+    let locked = false;
+
+    const render = () => {
+      cards.forEach((card, i) => {
+        const p = i - active;
+        card.dataset.pos = p < 0 ? 'out' : p > 2 ? 'far' : String(p);
+        card.toggleAttribute('inert', p !== 0);
+        card.setAttribute('aria-hidden', p === 0 ? 'false' : 'true');
+        card.style.removeProperty('transform');
+        card.classList.remove('dragging');
+      });
+      dots.forEach((dot, i) => {
+        if (i === active) dot.setAttribute('aria-current', 'true');
+        else dot.removeAttribute('aria-current');
+      });
+      if (prev) prev.disabled = active === 0;
+      if (next) next.disabled = active === cards.length - 1;
+    };
+
+    const go = (to: number) => {
+      active = Math.max(0, Math.min(cards.length - 1, to));
+      render();
+    };
+
+    stack.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      locked = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      dx = 0;
+    });
+    stack.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      dx = e.clientX - startX;
+      if (!locked) {
+        if (Math.abs(dx) < 6) return;
+        // Vertical gesture: let the page scroll.
+        if (Math.abs(e.clientY - startY) > Math.abs(dx)) {
+          dragging = false;
+          return;
+        }
+        locked = true;
+        stack.setPointerCapture(e.pointerId);
+      }
+      const card = cards[active];
+      card.classList.add('dragging');
+      card.style.transform = `translateX(${dx}px) rotate(${dx / 40}deg)`;
+    });
+    const end = () => {
+      if (!dragging) return;
+      dragging = false;
+      if (dx <= -THRESHOLD) go(active + 1);
+      else if (dx >= THRESHOLD) go(active - 1);
+      else render();
+      dx = 0;
+    };
+    stack.addEventListener('pointerup', end);
+    stack.addEventListener('pointercancel', end);
+
+    stack.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        go(active + 1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        go(active - 1);
+      }
+    });
+    prev?.addEventListener('click', () => go(active - 1));
+    next?.addEventListener('click', () => go(active + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => go(i)));
+
+    render();
+  }
+</script>
