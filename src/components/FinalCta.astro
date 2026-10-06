@@ -40,9 +40,14 @@ import Reveal from './ui/Reveal.astro';
   }
   .cta :global(.cta-media) {
     inset: 0;
+    width: 100%;
     height: 100%;
   }
   .cta :global(.cta-media img) {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
     object-position: 42% 62%;
   }
   .cta-content {

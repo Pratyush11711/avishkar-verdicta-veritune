@@ -124,7 +124,10 @@ export const veritune: ProductCopy = {
 };
 
 export const suite = {
-  line: 'Verdicta tells you how your agents performed. Veritune tells you how your customers reacted. Use one or both on the same calls and the same dashboard.',
+  eyebrow: 'Verdicta + Veritune',
+  heading: 'Verdicta tells you how your agents performed.',
+  accent: 'Veritune tells you how your customers reacted.',
+  line: 'Use one or both on the same calls and the same dashboard.',
 };
 
 export const multilingual = {
