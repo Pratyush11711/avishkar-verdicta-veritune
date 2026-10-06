@@ -1,0 +1,92 @@
+---
+import { faq } from '../data/copy';
+import { SECTION_IDS } from '../data/config';
+import Icon from './ui/Icon.astro';
+import Reveal from './ui/Reveal.astro';
+import RichText from './ui/RichText.astro';
+---
+
+<section id={SECTION_IDS.faq} aria-labelledby="faq-heading" class="section-y">
+  <div class="page">
+    <div class="mx-auto max-w-[47.5rem]">
+      <Reveal>
+        <h2 id="faq-heading" class="text-center text-h2">{faq.heading}</h2>
+      </Reveal>
+
+      <Reveal class="glass-flat mt-10 rounded-[1.5rem] px-2 sm:px-4 lg:mt-12" data-accordion>
+        {
+          faq.items.map((item, i) => {
+            const id = `faq-${i + 1}`;
+            return (
+              <div class="faq-item border-b border-ink/8 last:border-b-0" data-accordion-item>
+                <h3 class="text-[1.0625rem] font-medium tracking-[-0.005em] sm:text-lg">
+                  <button
+                    type="button"
+                    id={`${id}-trigger`}
+                    aria-expanded="false"
+                    aria-controls={`${id}-panel`}
+                    data-accordion-trigger
+                    class="flex min-h-16 w-full items-center justify-between gap-6 rounded-xl px-3 py-4 text-left text-ink sm:px-4"
+                  >
+                    <span>{item.q}</span>
+                    <span class="faq-chevron flex size-8 shrink-0 items-center justify-center rounded-full bg-white/70 ring-1 ring-ink/8">
+                      <Icon name="chevron-down" size={18} />
+                    </span>
+                  </button>
+                </h3>
+                <div
+                  id={`${id}-panel`}
+                  role="region"
+                  aria-labelledby={`${id}-trigger`}
+                  class="faq-panel"
+                  data-open="false"
+                >
+                  <div class="faq-panel__inner">
+                    <p class="max-w-[64ch] px-3 pb-5 text-body sm:px-4">
+                      <RichText segments={item.a} />
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        }
+      </Reveal>
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-panel {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 320ms var(--ease-out-soft);
+  }
+  .faq-panel__inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+  :global(.js) .faq-panel[data-open='false'] {
+    grid-template-rows: 0fr;
+  }
+  :global(.js) .faq-panel[data-open='false'] .faq-panel__inner {
+    visibility: hidden;
+    transition: visibility 0s linear 320ms;
+  }
+  .faq-chevron {
+    transition: transform 240ms var(--ease-out-soft);
+  }
+  [data-open] > h3 .faq-chevron {
+    transform: rotate(180deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .faq-panel,
+    .faq-chevron {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import '../scripts/accordion.ts';
+</script>

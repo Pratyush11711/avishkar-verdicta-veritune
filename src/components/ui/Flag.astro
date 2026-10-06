@@ -1,0 +1,22 @@
+---
+import { SHOW_REVIEW_FLAGS } from '../../data/config';
+
+interface Props {
+  note: string;
+}
+
+const { note } = Astro.props;
+---
+
+{
+  SHOW_REVIEW_FLAGS ? (
+    <span class="review-flag" tabindex="0" data-review-note={note} title={note}>
+      <slot />
+      <span class="review-flag__tip label-mono" aria-hidden="true">
+        Needs sign-off
+      </span>
+    </span>
+  ) : (
+    <slot />
+  )
+}

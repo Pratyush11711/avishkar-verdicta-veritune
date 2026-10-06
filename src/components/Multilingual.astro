@@ -1,0 +1,46 @@
+---
+import { multilingual } from '../data/copy';
+import { SECTION_IDS } from '../data/config';
+import { images } from '../data/media';
+import MediaSlot from './ui/MediaSlot.astro';
+import Reveal from './ui/Reveal.astro';
+import RichText from './ui/RichText.astro';
+---
+
+<section id={SECTION_IDS.multilingual} aria-labelledby="languages-heading" class="section-y">
+  <div class="page grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
+    <Reveal class="lg:col-span-6 lg:pr-6">
+      <h2 id="languages-heading" class="text-h2">{multilingual.heading}</h2>
+      <p class="mt-6 max-w-[68ch] text-body"><RichText segments={multilingual.body} /></p>
+      {
+        multilingual.optionalLine && (
+          <p class="mt-4 max-w-[68ch] text-body">
+            <RichText segments={multilingual.optionalLine} />
+          </p>
+        )
+      }
+      <ul class="mt-8 space-y-3">
+        {
+          multilingual.points.map((pt) => (
+            <li class="glass-flat flex items-start gap-3.5 rounded-xl px-4 py-3.5 text-[1rem] leading-relaxed text-ink">
+              <span class="mt-[0.55em] size-2 shrink-0 rounded-full bg-mint ring-4 ring-mint/25" aria-hidden="true" />
+              <span>
+                <RichText segments={pt} />
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </Reveal>
+
+    <Reveal class="lg:col-span-6">
+      <MediaSlot
+        image={images.multilingual}
+        label="IMG 5 · 4:3"
+        sizes="(min-width: 1024px) 600px, 100vw"
+        class="overflow-hidden rounded-media shadow-glass ring-1 ring-white/70"
+        imgClass="aspect-[4/3] w-full object-cover"
+      />
+    </Reveal>
+  </div>
+</section>

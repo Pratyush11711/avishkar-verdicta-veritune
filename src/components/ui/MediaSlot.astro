@@ -1,0 +1,71 @@
+---
+import type { ImageSlot } from '../../data/media';
+import { SHOW_REVIEW_FLAGS } from '../../data/config';
+
+interface Props {
+  image: ImageSlot | null;
+  /** Shown as a dev label on the fallback, e.g. "IMG 2 · 1:1". */
+  label?: string;
+  sizes: string;
+  priority?: boolean;
+  /** Applies `mobileObjectPosition` under 768px when no mobile file exists. */
+  cropOnMobile?: boolean;
+  class?: string;
+  imgClass?: string;
+  /** Decorative images inside a section that already explains them. */
+  decorative?: boolean;
+}
+
+const {
+  image,
+  label,
+  sizes,
+  priority = false,
+  cropOnMobile = false,
+  class: className,
+  imgClass,
+  decorative = false,
+} = Astro.props;
+
+const srcset = image?.webp.map((s) => `${s.src} ${s.w}w`).join(', ');
+const mobilePos = cropOnMobile && !image?.mobileSrc ? image?.mobileObjectPosition : undefined;
+---
+
+{
+  image ? (
+    <picture class:list={['block', className]}>
+      {image.mobileSrc && <source media="(max-width: 767px)" srcset={image.mobileSrc} />}
+      <source type="image/webp" srcset={srcset} sizes={sizes} />
+      <img
+        src={image.fallback}
+        width={image.width}
+        height={image.height}
+        alt={decorative ? '' : image.alt}
+        loading={priority ? 'eager' : 'lazy'}
+        fetchpriority={priority ? 'high' : 'auto'}
+        decoding="async"
+        class:list={['media-img', imgClass]}
+        style={mobilePos ? `--mobile-pos: ${mobilePos}` : undefined}
+      />
+    </picture>
+  ) : (
+    <div
+      class:list={[
+        'relative flex items-end justify-start bg-linear-to-b from-mist to-haze p-4',
+        className,
+      ]}
+      role="img"
+      aria-label={label ?? 'Image to be supplied'}
+    >
+      {SHOW_REVIEW_FLAGS && label && <span class="dev-label">{label}</span>}
+    </div>
+  )
+}
+
+<style>
+  @media (max-width: 767px) {
+    .media-img[style*='--mobile-pos'] {
+      object-position: var(--mobile-pos);
+    }
+  }
+</style>

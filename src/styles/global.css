@@ -1,0 +1,273 @@
+@import "tailwindcss";
+
+/* Metric-adjusted local fallbacks so the swap to the web fonts barely shifts layout. */
+@font-face {
+  font-family: "Instrument Sans Fallback";
+  src: local("Arial");
+  size-adjust: 96%;
+  ascent-override: 98%;
+  descent-override: 26%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Instrument Serif Fallback";
+  src: local("Times New Roman");
+  size-adjust: 92%;
+  ascent-override: 100%;
+  descent-override: 28%;
+  line-gap-override: 0%;
+}
+
+@theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-mist: #e3eeec;
+  --color-frost: #f4f7f9;
+  --color-haze: #b9c6e2;
+  --color-glass: rgb(255 255 255 / 0.6);
+  --color-ink: #16213a;
+  --color-slate: #5a6680;
+  --color-aqua: #7ed6d0;
+  --color-sky: #8db6ee;
+  --color-mint: #a9dec6;
+  --color-apricot: #f4ae62;
+  --color-coral: #ee8a7a;
+  --color-mint-ink: #1f6b4f;
+  --color-apricot-ink: #8a4b0c;
+  --color-coral-ink: #8f2e20;
+
+  /* Fallback pairing: --font-display "Inter Tight", --font-sans "Inter". Sizes stay the same. */
+  --font-display: "Instrument Sans Variable", "Instrument Sans Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Instrument Sans Variable", "Instrument Sans Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "Instrument Serif Fallback", Georgia, serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-hero: clamp(2.5rem, 1.15rem + 4.1vw, 4.5rem);
+  --text-hero--line-height: 1.04;
+  --text-hero--letter-spacing: -0.02em;
+  --text-h2: clamp(2rem, 1.55rem + 1.45vw, 2.75rem);
+  --text-h2--line-height: 1.1;
+  --text-h2--letter-spacing: -0.02em;
+  --text-h3: 1.1875rem;
+  --text-h3--line-height: 1.35;
+  --text-h3--letter-spacing: -0.01em;
+  --text-lead: clamp(1.0625rem, 0.98rem + 0.3vw, 1.25rem);
+  --text-lead--line-height: 1.6;
+  --text-body: clamp(1.0625rem, 1.03rem + 0.12vw, 1.125rem);
+  --text-body--line-height: 1.6;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.04em;
+
+  --radius-card: 1.125rem;
+  --radius-media: 1.75rem;
+
+  --shadow-glass: 0 24px 60px color-mix(in srgb, var(--color-ink) 6%, transparent),
+    0 1px 2px color-mix(in srgb, var(--color-ink) 4%, transparent);
+  --shadow-glass-strong: 0 24px 60px color-mix(in srgb, var(--color-ink) 10%, transparent),
+    0 1px 3px color-mix(in srgb, var(--color-ink) 6%, transparent);
+  --shadow-button: 0 6px 18px -6px color-mix(in srgb, var(--color-ink) 40%, transparent);
+
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --container-page: 75rem;
+  --container-prose: 68ch;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+    background: var(--color-frost);
+    overflow-x: clip;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    color: var(--color-slate);
+    background: linear-gradient(to bottom, var(--color-mist) 0, var(--color-frost) 1400px, var(--color-frost) 100%);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+
+  [id] {
+    scroll-margin-top: 7rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-sky) 45%, white);
+    color: var(--color-ink);
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Accent phrase inside headings: same size, normal tracking. */
+@utility accent {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+@utility page {
+  width: 100%;
+  max-width: calc(var(--container-page) + 3rem);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+
+  @media (width >= 48rem) {
+    max-width: calc(var(--container-page) + 4rem);
+    padding-inline: 2rem;
+  }
+}
+
+/* 40px each side on mobile = 80px between sections; 72px on desktop = 144px. */
+@utility section-y {
+  padding-block: clamp(2.5rem, 1.4rem + 3.4vw, 4.5rem);
+}
+
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+@utility glass {
+  background-color: var(--color-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  box-shadow: var(--shadow-glass);
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background-color: color-mix(in srgb, var(--color-frost) 92%, white);
+  }
+}
+
+/* For cards that sit on flat page backgrounds: same look, no blur cost. */
+@utility glass-flat {
+  background-color: rgb(255 255 255 / 0.6);
+  border: 1px solid rgb(255 255 255 / 0.85);
+  box-shadow: var(--shadow-glass);
+}
+
+@utility sr-only-focusable {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+
+  &:focus,
+  &:focus-visible {
+    width: auto;
+    height: auto;
+    clip-path: none;
+  }
+}
+
+/* ---------- Scroll reveal ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal],
+  .js [data-reveal-stagger] > * {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+    transition:
+      opacity 520ms var(--ease-out-soft),
+      transform 520ms var(--ease-out-soft);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .js [data-reveal].is-revealed,
+  .js [data-reveal-stagger] > .is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Review flags (dev and review builds only) ---------- */
+.review-flag {
+  position: relative;
+  text-decoration: underline dotted var(--color-apricot);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  cursor: help;
+  border-radius: 2px;
+}
+
+.review-flag__tip {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  z-index: 30;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  background: var(--color-ink);
+  color: white;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(2px);
+  transition:
+    opacity 160ms ease-out,
+    transform 160ms ease-out;
+}
+
+.review-flag:hover .review-flag__tip,
+.review-flag:focus-visible .review-flag__tip {
+  opacity: 1;
+  transform: none;
+}
+
+.dev-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-apricot-ink);
+  background: color-mix(in srgb, var(--color-apricot) 22%, white);
+  border: 1px dashed color-mix(in srgb, var(--color-apricot) 80%, var(--color-apricot-ink));
+  border-radius: 6px;
+  padding: 0.125rem 0.5rem;
+}

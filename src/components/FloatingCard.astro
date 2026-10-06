@@ -1,0 +1,96 @@
+---
+import type { HeroCard } from '../data/copy';
+import { nextLiquidGlassId } from '../scripts/liquid-glass-id';
+import StatusPill from './ui/StatusPill.astro';
+
+interface Props {
+  card: HeroCard;
+  class?: string;
+  style?: string;
+  [key: string]: unknown;
+}
+
+const { card, class: className, style, ...rest } = Astro.props;
+const dot = card.product === 'Verdicta' ? 'bg-aqua' : 'bg-sky';
+const filterId = nextLiquidGlassId();
+---
+
+<div class:list={['lw-card', className]} style={style} {...rest}>
+  <svg class="lw-card__defs" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id={filterId} x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.003 0.007" numOctaves="1" result="turbulence" />
+        <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="200" xChannelSelector="R" yChannelSelector="G"
+        ></feDisplacementMap>
+      </filter>
+    </defs>
+  </svg>
+  <div class="lw-card__blur" style={`filter: url(#${filterId})`} aria-hidden="true"></div>
+  <div class="lw-card__edge" aria-hidden="true"></div>
+  <div class="lw-card__body">
+    <div class="flex items-center justify-between gap-3">
+      <span class="flex items-center gap-2 text-[0.8125rem] font-semibold text-ink">
+        <span class:list={['size-2 rounded-full', dot]} aria-hidden="true"></span>
+        {card.product}
+      </span>
+      <StatusPill tone={card.pill} />
+    </div>
+    <p class="label-mono mt-2.5 truncate text-slate">{card.data}</p>
+  </div>
+</div>
+
+<style>
+  /* Liquid weather glass (UI Layout): frosted pane, soft edge, light shadow. */
+  .lw-card {
+    position: relative;
+    width: 18rem;
+    border-radius: 1.25rem;
+    background: rgb(255 255 255 / 0.08);
+    box-shadow:
+      0 4px 4px rgb(0 0 0 / 0.05),
+      0 0 12px rgb(0 0 0 / 0.05);
+    color: var(--color-ink);
+  }
+
+  .lw-card__defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .lw-card__blur,
+  .lw-card__edge {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .lw-card__blur {
+    z-index: 0;
+    background: rgb(255 255 255 / 0.18);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    backdrop-filter: blur(24px) saturate(1.5);
+  }
+
+  .lw-card__edge {
+    z-index: 1;
+    box-shadow:
+      inset 1px 1px 1px 0 rgb(255 255 255 / 0.55),
+      inset -1px -1px 1px 0 rgb(255 255 255 / 0.35);
+  }
+
+  .lw-card__body {
+    position: relative;
+    z-index: 2;
+    padding: 0.875rem 1rem;
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .lw-card__blur {
+      background: color-mix(in srgb, var(--color-frost) 86%, white);
+      filter: none !important;
+    }
+  }
+</style>

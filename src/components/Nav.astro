@@ -1,0 +1,183 @@
+---
+import { nav } from '../data/copy';
+import { PILOT_CTA_HREF } from '../data/config';
+import { logo } from '../data/media';
+import Button from './ui/Button.astro';
+import GlassSurface from './ui/GlassSurface.astro';
+import Icon from './ui/Icon.astro';
+
+const logoHeight = 28;
+const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
+---
+
+<header data-nav class="fixed inset-x-0 top-4 z-50 px-3 sm:px-4">
+  <div class="mx-auto max-w-[calc(var(--container-page)+2rem)]">
+    <GlassSurface id="nav" radius="auto" class="nav-pill rounded-full">
+    <nav
+      aria-label="Primary"
+      class="flex h-16 items-center justify-between gap-4 pr-2 pl-5 sm:pl-6"
+    >
+      <a href="#top" class="flex min-h-11 shrink-0 items-center rounded-md">
+        <img
+          src={logo.src}
+          width={logoWidth}
+          height={logoHeight}
+          alt={logo.alt}
+          decoding="async"
+          class="block h-7 w-auto"
+        />
+      </a>
+
+      <ul class="nav-switcher hidden items-center gap-8 lg:flex" data-nav-switcher>
+        <li class="nav-switcher__pill" aria-hidden="true" data-nav-pill></li>
+        {
+          nav.links.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                data-nav-item
+                class="nav-switcher__item inline-flex h-11 items-center rounded-full px-4 text-[0.9375rem] font-medium text-ink/80 transition-colors duration-200 ease-out hover:text-ink"
+              >
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="flex items-center gap-1.5">
+        <Button href={PILOT_CTA_HREF} size="sm" class="max-sm:hidden">{nav.button}</Button>
+        <button
+          type="button"
+          data-nav-toggle
+          aria-expanded="false"
+          aria-controls="nav-sheet"
+          aria-label="Open menu"
+          class="inline-flex size-12 items-center justify-center rounded-full text-ink transition-colors duration-200 hover:bg-white/70 lg:hidden"
+        >
+          <Icon name="menu" size={22} class="nav-icon-open" />
+          <Icon name="x" size={22} class="nav-icon-close" />
+        </button>
+      </div>
+    </nav>
+    </GlassSurface>
+
+    <GlassSurface id="sheet" domId="nav-sheet" hidden mode="blur" radius={24} class="nav-sheet mt-2 rounded-[1.5rem] p-3 lg:hidden">
+    <div>
+      <ul class="flex flex-col">
+        {
+          nav.links.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                class="flex h-12 items-center rounded-xl px-4 text-base font-medium text-ink transition-colors hover:bg-white/70"
+              >
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mt-2 border-t border-ink/10 px-1 pt-3">
+        <Button href={PILOT_CTA_HREF} class="w-full">{nav.button}</Button>
+      </div>
+    </div>
+    </GlassSurface>
+  </div>
+</header>
+
+<style>
+  :global(.nav-pill) {
+    --glass-frost: 0.5;
+    --glass-saturation: 1.4;
+  }
+  :global(.nav-sheet) {
+    --glass-frost: 0.92;
+  }
+  [data-scrolled] :global(.nav-pill),
+  [data-menu-open] :global(.nav-pill) {
+    --glass-frost: 0.82;
+  }
+  [data-scrolled] :global(.nav-pill:not([data-mode='svg'])),
+  [data-menu-open] :global(.nav-pill:not([data-mode='svg'])) {
+    background-color: rgb(255 255 255 / 0.82);
+    box-shadow: var(--shadow-glass-strong);
+  }
+  [data-nav] :global(.nav-icon-close),
+  [data-menu-open] :global(.nav-icon-open) {
+    display: none;
+  }
+  [data-menu-open] :global(.nav-icon-close) {
+    display: block;
+  }
+
+  /* Apple liquid-glass switcher pill (Den Dionigi / 21st.dev), brand tokens. */
+  .nav-switcher {
+    --c-glass: var(--color-frost);
+    --c-light: #ffffff;
+    --c-dark: var(--color-ink);
+    --glass-reflex-light: 1;
+    --glass-reflex-dark: 1;
+    position: relative;
+  }
+  .nav-switcher__item {
+    position: relative;
+    z-index: 1;
+  }
+  .nav-switcher__item[aria-current='location'] {
+    color: var(--color-ink);
+  }
+  .nav-switcher__pill {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    z-index: 0;
+    width: var(--pill-w, 0px);
+    height: calc(100% - 8px);
+    translate: var(--pill-x, 0px) 0;
+    border-radius: 99em;
+    pointer-events: none;
+    opacity: 0;
+    background-color: color-mix(in srgb, var(--c-glass) 42%, transparent);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 10%), transparent),
+      inset 2px 1px 0 -1px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 90%), transparent),
+      inset -1.5px -1px 0 -1px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 80%), transparent),
+      inset -2px -6px 1px -5px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 60%), transparent),
+      inset -1px 2px 3px -1px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 20%), transparent),
+      inset 0 -4px 1px -2px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
+      0 3px 6px 0 color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
+    transform-origin: var(--pill-origin, center);
+    transition:
+      translate 400ms ease-out,
+      width 400ms ease-out,
+      opacity 200ms ease-out;
+  }
+  .nav-switcher__pill.is-visible {
+    opacity: 1;
+  }
+  .nav-switcher__pill.is-stretching {
+    animation: liquid-stretch 440ms ease-out;
+  }
+  @keyframes liquid-stretch {
+    0%,
+    100% {
+      scale: 1 1;
+    }
+    50% {
+      scale: var(--pill-stretch, 1.1) 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-switcher__pill {
+      transition: opacity 160ms ease-out;
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import '../scripts/nav.ts';
+  import '../scripts/nav-switcher.ts';
+  import '../scripts/glass-surface.ts';
+</script>

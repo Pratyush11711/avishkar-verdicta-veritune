@@ -1,0 +1,25 @@
+---
+import { pillLabels, type PillTone } from '../../data/copy';
+
+interface Props {
+  tone: PillTone;
+}
+
+const { tone } = Astro.props;
+
+const tones: Record<PillTone, { pill: string; dot: string }> = {
+  pass: { pill: 'bg-mint/45 text-mint-ink ring-mint', dot: 'bg-mint-ink' },
+  flag: { pill: 'bg-apricot/35 text-apricot-ink ring-apricot/80', dot: 'bg-apricot' },
+  fatal: { pill: 'bg-coral/30 text-coral-ink ring-coral/80', dot: 'bg-coral' },
+};
+---
+
+<span
+  class:list={[
+    'label-mono inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 ring-1 ring-inset',
+    tones[tone].pill,
+  ]}
+>
+  <span class:list={['size-1.5 rounded-full', tones[tone].dot]} aria-hidden="true"></span>
+  {pillLabels[tone]}
+</span>

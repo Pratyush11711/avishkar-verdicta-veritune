@@ -1,0 +1,49 @@
+---
+import { pilot } from '../data/copy';
+import { PILOT_CTA_HREF, SECTION_IDS } from '../data/config';
+import { icons } from '../data/media';
+import Accent from './ui/Accent.astro';
+import Button from './ui/Button.astro';
+import IconTile from './ui/IconTile.astro';
+import Reveal from './ui/Reveal.astro';
+import RichText from './ui/RichText.astro';
+---
+
+<section id={SECTION_IDS.pilot} aria-labelledby="pilot-heading" class="section-y">
+  <div class="page">
+    <Reveal>
+      <h2 id="pilot-heading" class="mx-auto max-w-[18em] text-center text-h2">
+        <Accent text={pilot.heading} />
+      </h2>
+    </Reveal>
+
+    <Reveal as="ol" stagger class="mt-12 grid gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-5">
+      {
+        pilot.steps.map((step, i) => (
+          <li class="glass-flat flex flex-col rounded-card p-6 sm:p-7">
+            <div class="flex items-start justify-between">
+              <IconTile icon={icons[step.icon]} size={88} />
+              <span class="label-mono text-slate" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+            </div>
+            <h3 class="mt-6 text-h3">
+              <span class="sr-only">Step {i + 1}: </span>
+              {step.title}
+            </h3>
+            <p class="mt-2.5 text-[1rem] leading-relaxed text-slate">
+              <RichText segments={step.body} />
+            </p>
+          </li>
+        ))
+      }
+    </Reveal>
+
+    <Reveal class="mt-12 flex flex-col items-center gap-6 text-center lg:mt-14">
+      <Button href={PILOT_CTA_HREF} icon="arrow-right">{pilot.button}</Button>
+      <p class="max-w-[64ch] text-[0.9375rem] leading-relaxed text-slate">
+        <RichText segments={pilot.note} />
+      </p>
+    </Reveal>
+  </div>
+</section>

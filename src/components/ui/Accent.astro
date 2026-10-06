@@ -1,0 +1,11 @@
+---
+import { splitAccent } from '../../lib/accent';
+
+interface Props {
+  text: string;
+}
+
+const parts = splitAccent(Astro.props.text);
+---
+
+{parts.map((p) => (p.accent ? <em class="accent">{p.text}</em> : p.text))}

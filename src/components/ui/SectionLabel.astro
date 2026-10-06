@@ -1,0 +1,20 @@
+---
+interface Props {
+  /** Aqua = Verdicta, Sky = Veritune. Dot only, never coloured text. */
+  dot?: 'aqua' | 'sky' | 'ink';
+  class?: string;
+}
+
+const { dot = 'ink', class: className } = Astro.props;
+
+const dots = {
+  aqua: 'bg-aqua ring-aqua/30',
+  sky: 'bg-sky ring-sky/30',
+  ink: 'bg-ink/70 ring-ink/10',
+};
+---
+
+<p class:list={['flex items-center gap-2.5 text-[0.9375rem] font-medium text-ink', className]}>
+  <span class:list={['size-2 shrink-0 rounded-full ring-4', dots[dot]]} aria-hidden="true"></span>
+  <span><slot /></span>
+</p>

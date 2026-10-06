@@ -1,0 +1,66 @@
+---
+import { footer } from '../data/copy';
+import { FOOTER_LINKS, LEGAL_LINKS } from '../data/config';
+import { logo } from '../data/media';
+import Icon from './ui/Icon.astro';
+
+const logoHeight = 32;
+const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
+---
+
+<footer class="relative bg-linear-to-b from-frost from-0% to-haze to-[7rem] text-ink">
+  <div class="page grid gap-10 pt-20 pb-12 lg:grid-cols-12 lg:gap-8 lg:pt-24 lg:pb-14">
+    <div class="lg:col-span-6">
+      <img
+        src={logo.src}
+        width={logoWidth}
+        height={logoHeight}
+        alt={logo.alt}
+        loading="lazy"
+        decoding="async"
+        class="block h-8 w-auto"
+      />
+      <p class="mt-5 max-w-[46ch] text-[1rem] leading-relaxed text-ink">{footer.line}</p>
+      <p class="mt-6 inline-flex items-center gap-2 rounded-full bg-white/55 px-3.5 py-1.5 ring-1 ring-white/70">
+        <Icon name="shield-check" size={16} class="text-ink" />
+        <span class="label-mono text-ink">{footer.badge}</span>
+      </p>
+    </div>
+
+    <nav aria-label="Footer" class="lg:col-span-5 lg:col-start-8">
+      <ul class="grid grid-cols-2 gap-x-6 gap-y-1 sm:flex sm:flex-wrap sm:justify-end sm:gap-x-2">
+        {
+          FOOTER_LINKS.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                class="inline-flex min-h-11 items-center rounded-full text-[0.9375rem] font-medium text-ink underline-offset-4 hover:underline sm:px-3"
+              >
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+
+  <div class="page">
+    <div class="flex flex-col gap-3 border-t border-ink/15 py-6 text-[0.875rem] text-ink sm:flex-row sm:items-center sm:justify-between">
+      <p>© {new Date().getFullYear()} Avishkar AI</p>
+      {
+        LEGAL_LINKS.length > 0 && (
+          <ul class="flex gap-5">
+            {LEGAL_LINKS.map((l) => (
+              <li>
+                <a href={l.href} class="inline-flex min-h-11 items-center hover:underline">
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</footer>

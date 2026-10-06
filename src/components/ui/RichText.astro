@@ -1,0 +1,12 @@
+---
+import { isFlagged, type Rich } from '../../data/copy';
+import Flag from './Flag.astro';
+
+interface Props {
+  segments: Rich;
+}
+
+const { segments } = Astro.props;
+---
+
+{segments.map((s) => (isFlagged(s) ? <Flag note={s.note}>{s.text}</Flag> : s))}

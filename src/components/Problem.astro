@@ -1,0 +1,35 @@
+---
+import { problem } from '../data/copy';
+import { SECTION_IDS } from '../data/config';
+import { images } from '../data/media';
+import Accent from './ui/Accent.astro';
+import MediaSlot from './ui/MediaSlot.astro';
+import Reveal from './ui/Reveal.astro';
+---
+
+<section id={SECTION_IDS.problem} aria-labelledby="problem-heading" class="section-y">
+  <div class="page grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
+    <Reveal class="lg:col-span-6 lg:pr-6">
+      <h2 id="problem-heading" class="text-h2">
+        <Accent text={problem.heading} />
+      </h2>
+      <div class="mt-6 max-w-[68ch] space-y-5 text-body">
+        {problem.body.map((p) => <p>{p}</p>)}
+      </div>
+      <p class="mt-8 flex items-center gap-4 text-lead font-medium text-ink">
+        <span class="h-px w-10 shrink-0 bg-ink/30" aria-hidden="true"></span>
+        {problem.transition}
+      </p>
+    </Reveal>
+
+    <Reveal class="lg:col-span-6">
+      <MediaSlot
+        image={images.problem}
+        label="IMG 1 · 4:3"
+        sizes="(min-width: 1024px) 600px, 100vw"
+        class="overflow-hidden rounded-media shadow-glass ring-1 ring-white/70"
+        imgClass="aspect-[4/3] w-full object-cover"
+      />
+    </Reveal>
+  </div>
+</section>

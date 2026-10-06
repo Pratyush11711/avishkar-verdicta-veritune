@@ -1,0 +1,22 @@
+---
+interface Props {
+  features: string[];
+  dot: 'aqua' | 'sky';
+}
+
+const { features, dot } = Astro.props;
+---
+
+<ul class="grid gap-x-10 sm:grid-cols-2" data-reveal-stagger>
+  {
+    features.map((f) => (
+      <li class="flex gap-3.5 border-t border-ink/8 py-4 text-[1rem] leading-relaxed text-slate">
+        <span
+          class:list={['mt-[0.6em] size-2 shrink-0 rounded-full ring-4', dot === 'aqua' ? 'bg-aqua ring-aqua/20' : 'bg-sky ring-sky/20']}
+          aria-hidden="true"
+        />
+        <span>{f}</span>
+      </li>
+    ))
+  }
+</ul>

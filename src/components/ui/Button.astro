@@ -1,0 +1,46 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary' | 'text';
+  size?: 'md' | 'sm';
+  icon?: IconName;
+  class?: string;
+}
+
+const { href, variant = 'primary', size = 'md', icon, class: className } = Astro.props;
+
+const base =
+  'group inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-[transform,box-shadow,background-color,color] duration-200 ease-out min-h-11';
+
+const sizes = {
+  md: 'h-12 px-6 text-[0.96875rem] rounded-full',
+  sm: 'h-11 px-5 text-[0.9375rem] rounded-full',
+};
+
+const variants = {
+  primary:
+    'bg-ink text-white shadow-[0_1px_2px_rgb(22_33_58/0.2)] hover:-translate-y-px hover:shadow-button active:translate-y-0',
+  secondary:
+    'glass shadow-none! border-ink! text-ink hover:-translate-y-px hover:shadow-glass-strong! hover:bg-white/80 active:translate-y-0',
+  text: 'text-ink underline decoration-ink/30 underline-offset-[6px] hover:decoration-ink px-2',
+};
+---
+
+<a href={href} class:list={[base, variant !== 'text' && sizes[size], variants[variant], className]}>
+  <slot />
+  {
+    icon && (
+      <Icon
+        name={icon}
+        size={18}
+        class:list={[
+          'shrink-0 transition-transform duration-200 ease-out',
+          icon === 'arrow-right' && 'group-hover:translate-x-0.5',
+          icon === 'arrow-down' && 'group-hover:translate-y-0.5',
+        ]}
+      />
+    )
+  }
+</a>

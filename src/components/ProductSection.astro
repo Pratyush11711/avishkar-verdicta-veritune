@@ -1,0 +1,55 @@
+---
+import type { ProductCopy } from '../data/copy';
+import { images, productScreenshots } from '../data/media';
+import Accent from './ui/Accent.astro';
+import MediaSlot from './ui/MediaSlot.astro';
+import Reveal from './ui/Reveal.astro';
+import SectionLabel from './ui/SectionLabel.astro';
+import FeatureList from './FeatureList.astro';
+import ProductFrame from './ProductFrame.astro';
+
+interface Props {
+  product: ProductCopy;
+  /** Text left, image right. */
+  mirrored?: boolean;
+}
+
+const { product, mirrored = false } = Astro.props;
+const isVerdicta = product.key === 'verdicta';
+const dot = isVerdicta ? 'aqua' : 'sky';
+const name = isVerdicta ? 'Verdicta' : 'Veritune';
+const image = images[product.key];
+const headingId = `${product.key}-heading`;
+---
+
+<section id={product.key} aria-labelledby={headingId} class="section-y">
+  <div class="page">
+    <div class="grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
+      <Reveal class:list={['lg:col-span-5', mirrored && 'lg:order-2 lg:col-start-8']}>
+        <MediaSlot
+          image={image}
+          label={`${isVerdicta ? 'IMG 2' : 'IMG 3'} · 1:1`}
+          sizes="(min-width: 1024px) 480px, (min-width: 640px) 560px, 100vw"
+          class="mx-auto max-w-[35rem] overflow-hidden rounded-media shadow-glass ring-1 ring-white/70 lg:max-w-none"
+          imgClass="aspect-square w-full object-cover"
+        />
+      </Reveal>
+
+      <Reveal class:list={['lg:col-span-6', mirrored ? 'lg:order-1 lg:col-start-1' : 'lg:col-start-7']}>
+        <SectionLabel dot={dot}>{product.label}</SectionLabel>
+        <h2 id={headingId} class="mt-5 text-h2">
+          <Accent text={product.heading} />
+        </h2>
+        <p class="mt-6 max-w-[68ch] text-body">{product.body}</p>
+      </Reveal>
+    </div>
+
+    <div class="mt-14 lg:mt-20">
+      <FeatureList features={product.features} dot={dot} />
+    </div>
+
+    <div class="mt-12 lg:mt-16">
+      <ProductFrame product={name} screenshot={productScreenshots[product.key]} />
+    </div>
+  </div>
+</section>

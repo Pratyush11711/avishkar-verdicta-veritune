@@ -1,0 +1,18 @@
+---
+import type { HTMLTag } from 'astro/types';
+
+interface Props {
+  as?: HTMLTag;
+  /** Stagger direct children by ~70ms instead of revealing this element as one block. */
+  stagger?: boolean;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { as: Tag = 'div', stagger = false, class: className, ...rest } = Astro.props;
+const attrs = stagger ? { 'data-reveal-stagger': '' } : { 'data-reveal': '' };
+---
+
+<Tag class={className} {...attrs} {...rest}>
+  <slot />
+</Tag>

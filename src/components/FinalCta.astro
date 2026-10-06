@@ -1,0 +1,61 @@
+---
+import { finalCta } from '../data/copy';
+import { PILOT_CTA_HREF, SECTION_IDS, TALK_TO_TEAM_HREF } from '../data/config';
+import { images } from '../data/media';
+import Accent from './ui/Accent.astro';
+import Button from './ui/Button.astro';
+import MediaSlot from './ui/MediaSlot.astro';
+import Reveal from './ui/Reveal.astro';
+---
+
+<section id={SECTION_IDS.finalCta} aria-labelledby="final-heading" class="cta relative isolate overflow-clip scroll-mt-0">
+  <MediaSlot
+    image={images.finalCta}
+    label="IMG 6 · 21:9"
+    sizes="100vw"
+    cropOnMobile
+    decorative
+    class="cta-media absolute inset-0 -z-10"
+    imgClass="size-full object-cover"
+  />
+  <div class="page cta-content">
+    <Reveal class="mx-auto max-w-[40rem] text-center">
+      <h2 id="final-heading" class="text-h2">
+        <Accent text={finalCta.heading} />
+      </h2>
+      <p class="mt-5 text-body">{finalCta.body}</p>
+      <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
+        <Button href={PILOT_CTA_HREF} icon="arrow-right">{finalCta.primary}</Button>
+        <Button href={TALK_TO_TEAM_HREF} variant="text">{finalCta.secondary}</Button>
+      </div>
+    </Reveal>
+  </div>
+</section>
+
+<style>
+  .cta {
+    min-height: 100svh;
+    display: flex;
+    align-items: flex-start;
+  }
+  .cta :global(.cta-media) {
+    inset: 0;
+    height: 100%;
+  }
+  .cta :global(.cta-media img) {
+    object-position: 42% 62%;
+  }
+  .cta-content {
+    width: 100%;
+    padding-top: 7.5rem;
+    padding-bottom: 3rem;
+  }
+  @media (min-width: 768px) {
+    .cta :global(.cta-media img) {
+      object-position: center 58%;
+    }
+    .cta-content {
+      padding-top: 8.5rem;
+    }
+  }
+</style>

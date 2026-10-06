@@ -1,0 +1,34 @@
+---
+import { audience } from '../data/copy';
+import { SECTION_IDS } from '../data/config';
+import { icons } from '../data/media';
+import Accent from './ui/Accent.astro';
+import IconTile from './ui/IconTile.astro';
+import Reveal from './ui/Reveal.astro';
+import RichText from './ui/RichText.astro';
+---
+
+<section id={SECTION_IDS.audience} aria-labelledby="audience-heading" class="section-y">
+  <div class="page">
+    <Reveal class="mx-auto max-w-[44rem] text-center">
+      <h2 id="audience-heading" class="text-h2">
+        <Accent text={audience.heading} />
+      </h2>
+      <p class="mt-6 text-body">{audience.body}</p>
+    </Reveal>
+
+    <Reveal as="ul" stagger class="mt-12 grid gap-4 sm:grid-cols-2 lg:mt-14 lg:grid-cols-4 lg:gap-5">
+      {
+        audience.cards.map((card) => (
+          <li class="glass-flat flex flex-col items-center rounded-card p-6 text-center sm:p-7">
+            <IconTile icon={icons[card.icon]} size={96} />
+            <h3 class="mt-5 text-h3">{card.title}</h3>
+            <p class="mt-2 text-[1rem] leading-relaxed text-slate">
+              <RichText segments={card.body} />
+            </p>
+          </li>
+        ))
+      }
+    </Reveal>
+  </div>
+</section>

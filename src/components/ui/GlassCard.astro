@@ -1,0 +1,17 @@
+---
+import type { HTMLTag } from 'astro/types';
+
+interface Props {
+  as?: HTMLTag;
+  /** `blur` uses backdrop-filter; keep it for cards over imagery. `flat` is for cards on plain backgrounds. */
+  surface?: 'blur' | 'flat';
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { as: Tag = 'div', surface = 'flat', class: className, ...rest } = Astro.props;
+---
+
+<Tag class:list={[surface === 'blur' ? 'glass' : 'glass-flat', 'rounded-card', className]} {...rest}>
+  <slot />
+</Tag>

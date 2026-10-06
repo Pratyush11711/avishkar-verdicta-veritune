@@ -1,0 +1,178 @@
+---
+import { numbers } from '../data/copy';
+import { SECTION_IDS } from '../data/config';
+import Reveal from './ui/Reveal.astro';
+---
+
+<section id={SECTION_IDS.numbers} aria-labelledby="numbers-heading" class="section-y">
+  <div class="page">
+    <div class="grid gap-10 lg:grid-cols-12 lg:gap-12 lg:items-center">
+      <Reveal class="lg:col-span-5">
+        <p class="flex items-center gap-2 text-[0.8125rem] font-medium tracking-[0.02em] text-slate">
+          <span class="size-1.5 rounded-full bg-mint ring-4 ring-mint/20" aria-hidden="true"></span>
+          Stats
+        </p>
+        <h2 id="numbers-heading" class="mt-4 text-h2">{numbers.heading}</h2>
+        <p class="mt-5 max-w-[42ch] text-body">{numbers.credibility}</p>
+      </Reveal>
+
+      <Reveal as="ul" stagger class="grid grid-cols-2 gap-3 sm:gap-4 lg:col-span-7">
+        {
+          numbers.stats.map((s, i) => (
+            <li class="stat-card" style={`--d:${i}`}>
+              <span class="stat-orb stat-orb--a" aria-hidden="true" />
+              <span class="stat-orb stat-orb--b" aria-hidden="true" />
+              <span class="stat-shine" aria-hidden="true" />
+              <span class="corner-dot corner-dot--tl" aria-hidden="true" />
+              <span class="corner-dot corner-dot--tr" aria-hidden="true" />
+              <span class="corner-dot corner-dot--bl" aria-hidden="true" />
+              <span class="corner-dot corner-dot--br" aria-hidden="true" />
+
+              <p class="stat-value text-[clamp(1.75rem,1.1rem+2.9vw,3.25rem)] leading-none font-semibold tracking-[-0.02em] whitespace-nowrap text-ink tabular-nums">
+                <span class="sr-only">{s.value}</span>
+                <span aria-hidden="true" data-countup data-to={s.count.to} data-suffix={s.count.suffix}>
+                  {s.value}
+                </span>
+              </p>
+
+              <span class="stat-rule" aria-hidden="true" />
+
+              <p class="stat-label text-[0.9375rem] leading-relaxed text-slate">{s.label}</p>
+            </li>
+          ))
+        }
+      </Reveal>
+    </div>
+  </div>
+</section>
+
+<style>
+  .stat-card {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 0.85);
+    border-radius: var(--radius-card);
+    background: rgb(255 255 255 / 0.58);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-glass);
+    -webkit-backdrop-filter: blur(18px) saturate(1.45);
+    backdrop-filter: blur(18px) saturate(1.45);
+  }
+
+  @media (min-width: 640px) {
+    .stat-card {
+      padding: 1.75rem;
+    }
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .stat-card {
+      background: color-mix(in srgb, var(--color-frost) 92%, white);
+    }
+  }
+
+  .stat-orb {
+    position: absolute;
+    z-index: 0;
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .stat-orb--a {
+    top: -2.4rem;
+    right: -1.1rem;
+    width: 6.5rem;
+    height: 6.5rem;
+    background: radial-gradient(circle at 35% 35%, white 0%, var(--color-aqua) 46%, var(--color-sky) 100%);
+    opacity: 0.9;
+  }
+
+  .stat-orb--b {
+    bottom: -1.8rem;
+    left: -1.3rem;
+    width: 4.25rem;
+    height: 4.25rem;
+    background: radial-gradient(circle at 35% 35%, white 0%, var(--color-mint) 42%, var(--color-sky) 100%);
+    opacity: 0.85;
+  }
+
+  .stat-shine {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      transparent 32%,
+      rgb(255 255 255 / 0.72) 48%,
+      transparent 64%
+    );
+    transform: translateX(-130%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .stat-shine {
+      animation: stat-shine 6.5s ease-in-out infinite;
+      animation-delay: calc(var(--d) * 1.15s);
+    }
+  }
+
+  @keyframes stat-shine {
+    0%,
+    58% {
+      transform: translateX(-130%);
+    }
+    100% {
+      transform: translateX(130%);
+    }
+  }
+
+  .stat-value,
+  .stat-rule,
+  .stat-label {
+    position: relative;
+    z-index: 2;
+  }
+
+  .stat-rule {
+    display: block;
+    width: 100%;
+    height: 1px;
+    margin-block: 1rem;
+    background: color-mix(in srgb, var(--color-ink) 12%, transparent);
+  }
+
+  .corner-dot {
+    position: absolute;
+    z-index: 3;
+    width: 3px;
+    height: 3px;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--color-ink) 22%, transparent);
+  }
+  .corner-dot--tl {
+    top: 0.85rem;
+    left: 0.85rem;
+  }
+  .corner-dot--tr {
+    top: 0.85rem;
+    right: 0.85rem;
+  }
+  .corner-dot--bl {
+    bottom: 0.85rem;
+    left: 0.85rem;
+  }
+  .corner-dot--br {
+    bottom: 0.85rem;
+    right: 0.85rem;
+  }
+</style>
+
+<script>
+  import '../scripts/countup.ts';
+</script>

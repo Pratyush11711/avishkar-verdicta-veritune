@@ -1,0 +1,91 @@
+---
+import '@fontsource-variable/instrument-sans/wght.css';
+import '@fontsource/instrument-serif/400-italic.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '../styles/global.css';
+import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import { seo } from '../data/copy';
+import { SITE_URL } from '../data/config';
+import { images } from '../data/media';
+
+const canonical = new URL('/', SITE_URL).href;
+const ogImage = new URL('/og-image.jpg', SITE_URL).href;
+const heroSrcset = images.hero.webp.map((s) => `${s.src} ${s.w}w`).join(', ');
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${canonical}#organization`,
+      name: 'Avishkar AI',
+      url: canonical,
+      logo: new URL('/logo-dark.webp', SITE_URL).href,
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${canonical}#webpage`,
+      url: canonical,
+      name: seo.title,
+      description: seo.description,
+      inLanguage: 'en',
+      publisher: { '@id': `${canonical}#organization` },
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{seo.title}</title>
+    <meta name="description" content={seo.description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#e3eeec" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Avishkar AI" />
+    <meta property="og:title" content={seo.title} />
+    <meta property="og:description" content={seo.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={images.hero.alt} />
+    <meta property="og:locale" content="en_GB" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={seo.title} />
+    <meta name="twitter:description" content={seo.description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      imagesrcset={heroSrcset}
+      imagesizes="(min-width: 1920px) 1920px, 100vw"
+      fetchpriority="high"
+    />
+
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only-focusable fixed top-3 left-3 z-[100] rounded-full bg-ink px-5 py-3 text-sm font-medium text-white"
+    >
+      Skip to content
+    </a>
+    <slot />
+    <script>
+      import '../scripts/reveal.ts';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,289 @@
+---
+import { hero, heroCards } from '../data/copy';
+import { PILOT_CTA_HREF, SECTION_IDS } from '../data/config';
+import { images, heroGeometry } from '../data/media';
+import Accent from './ui/Accent.astro';
+import Button from './ui/Button.astro';
+import MediaSlot from './ui/MediaSlot.astro';
+import FloatingCard from './FloatingCard.astro';
+
+const { orbs, pulse, orbRadius } = heroGeometry;
+const ratio = images.hero.height / images.hero.width;
+
+const stageVars = [
+  `--ratio:${ratio.toFixed(5)}`,
+  `--orb-r:${orbRadius}`,
+  `--pulse-x:${pulse.x}%`,
+  `--pulse-y:${pulse.y}%`,
+  `--pulse-len:${pulse.length}%`,
+  `--pulse-angle:${pulse.angle}deg`,
+].join(';');
+---
+
+<section id={SECTION_IDS.top} data-hero aria-labelledby="hero-heading" class="hero relative isolate">
+  <div class="hero-text page relative z-10 pt-32 text-center sm:pt-36 lg:pt-40">
+    <p
+      class="glass-flat mx-auto inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.8125rem] font-medium text-ink/80 sm:px-4 sm:text-[0.875rem]"
+    >
+      <span class="flex gap-1" aria-hidden="true">
+        <span class="size-1.5 rounded-full bg-aqua"></span>
+        <span class="size-1.5 rounded-full bg-sky"></span>
+      </span>
+      {hero.eyebrow}
+    </p>
+
+    <h1 id="hero-heading" class="mx-auto mt-6 max-w-[17em] text-hero font-semibold">
+      <Accent text={hero.headline} />
+    </h1>
+
+    <p class="mx-auto mt-6 max-w-[62ch] text-lead text-slate">{hero.subhead}</p>
+
+    <div class="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+      <Button href={PILOT_CTA_HREF} icon="arrow-right">{hero.primary}</Button>
+      <Button href={`#${SECTION_IDS.pilot}`} variant="secondary" icon="arrow-down">{hero.secondary}</Button>
+    </div>
+
+    <p class="mx-auto mt-5 max-w-[64ch] text-[0.9375rem] leading-relaxed text-ink/75">{hero.underButtons}</p>
+  </div>
+
+  <div class="hero-stage" style={stageVars}>
+    <MediaSlot
+      image={images.hero}
+      sizes="(min-width: 1920px) 1920px, 100vw"
+      priority
+      cropOnMobile
+      decorative={false}
+      class="absolute inset-0"
+      imgClass="size-full object-cover"
+    />
+
+    <div class="hero-pulse" aria-hidden="true"><span class="hero-pulse__streak"></span></div>
+
+    <div class="hidden xl:block" aria-hidden="true">
+      {
+        heroCards.map((card, i) => {
+          const o = orbs[card.orb];
+          return (
+            <FloatingCard
+              card={card}
+              class="orb-card"
+              data-side={o.side}
+              style={`--x:${o.x};--y:${o.y};--stem:${o.stem}px;--i:${i}`}
+            />
+          );
+        })
+      }
+    </div>
+  </div>
+
+  <div
+    class="hero-compact page relative z-10 flex flex-col items-center justify-center gap-3 sm:flex-row xl:hidden"
+    aria-hidden="true"
+  >
+    {
+      heroCards
+        .filter((c) => c.compact)
+        .map((card, i) => <FloatingCard card={card} class="hero-card-in" style={`--i:${i}`} />)
+    }
+  </div>
+</section>
+
+<style>
+  .hero {
+    overflow-x: clip;
+  }
+
+  .hero-text::before {
+    content: '';
+    position: absolute;
+    inset: 2rem 0 -9rem;
+    z-index: -1;
+    background: radial-gradient(
+      closest-side at 50% 50%,
+      color-mix(in srgb, var(--color-mist) 94%, transparent) 0%,
+      color-mix(in srgb, var(--color-mist) 86%, transparent) 62%,
+      color-mix(in srgb, var(--color-mist) 0%, transparent) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Image box. Everything inside is positioned in cqw so it tracks the render exactly. */
+  .hero-stage {
+    position: relative;
+    container-type: inline-size;
+    width: 100%;
+    max-width: 1920px;
+    margin-inline: auto;
+    aspect-ratio: 4 / 3;
+    margin-top: calc(1rem - 15vw);
+  }
+  .hero-stage > :global(picture) {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 84%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 84%, transparent 100%);
+  }
+
+  @media (min-width: 768px) {
+    .hero-stage {
+      aspect-ratio: 1 / var(--ratio);
+      /* Tuck the empty sky (top ~37% of the render) under the text block. */
+      margin-top: calc(1.5rem - min(100vw, 1920px) * 0.185);
+    }
+  }
+
+  @media (min-width: 1921px) {
+    .hero-stage > :global(picture) {
+      -webkit-mask-image:
+        linear-gradient(to bottom, transparent 0%, #000 34%, #000 84%, transparent 100%),
+        linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask-image:
+        linear-gradient(to bottom, transparent 0%, #000 34%, #000 84%, transparent 100%),
+        linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+      mask-composite: intersect;
+    }
+  }
+
+  /* ---------- Cards anchored to the orbs (desktop) ---------- */
+  .hero-stage :global(.orb-card) {
+    --stem-len: 2.5rem;
+    position: absolute;
+    left: calc(var(--x) * 1cqw - var(--stem));
+  }
+  .hero-stage :global(.orb-card[data-side='below']) {
+    top: calc(var(--y) * var(--ratio) * 1cqw + var(--orb-r) * 1cqw + var(--stem-len));
+  }
+  .hero-stage :global(.orb-card[data-side='above']) {
+    bottom: calc((100 - var(--y)) * var(--ratio) * 1cqw + var(--orb-r) * 1cqw + var(--stem-len));
+  }
+  .hero-stage :global(.orb-card)::before,
+  .hero-stage :global(.orb-card)::after {
+    content: '';
+    position: absolute;
+    left: var(--stem);
+    pointer-events: none;
+  }
+  .hero-stage :global(.orb-card)::before {
+    width: 1px;
+    height: var(--stem-len);
+    margin-left: -0.5px;
+  }
+  .hero-stage :global(.orb-card)::after {
+    width: 5px;
+    height: 5px;
+    margin-left: -2.5px;
+    border-radius: 9999px;
+    background: var(--color-white);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-ink) 35%, transparent);
+  }
+  .hero-stage :global(.orb-card[data-side='below'])::before {
+    bottom: 100%;
+    background: linear-gradient(to top, color-mix(in srgb, var(--color-ink) 35%, transparent), transparent);
+  }
+  .hero-stage :global(.orb-card[data-side='below'])::after {
+    bottom: calc(100% + var(--stem-len) - 2.5px);
+  }
+  .hero-stage :global(.orb-card[data-side='above'])::before {
+    top: 100%;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--color-ink) 35%, transparent), transparent);
+  }
+  .hero-stage :global(.orb-card[data-side='above'])::after {
+    top: calc(100% + var(--stem-len) - 2.5px);
+  }
+
+  /* ---------- Compact cards (tablet and mobile) ---------- */
+  .hero-compact {
+    margin-top: -4.5rem;
+    padding-bottom: 1rem;
+  }
+  @media (min-width: 768px) {
+    .hero-compact {
+      margin-top: calc(-1 * min(100vw, 1920px) * 0.1);
+    }
+  }
+
+  /* ---------- Pulse along the straight part of the cord ---------- */
+  .hero-pulse {
+    display: none;
+    position: absolute;
+    left: var(--pulse-x);
+    top: var(--pulse-y);
+    width: var(--pulse-len);
+    height: 0;
+    transform: rotate(var(--pulse-angle));
+    transform-origin: 0 50%;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .hero-pulse__streak {
+    position: absolute;
+    left: 0;
+    top: -0.6cqw;
+    width: 20%;
+    height: 1.2cqw;
+    border-radius: 9999px;
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      rgb(255 255 255 / 0.95) 0%,
+      rgb(255 255 255 / 0.55) 40%,
+      rgb(255 255 255 / 0) 100%
+    );
+    opacity: 0;
+  }
+
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    .hero-pulse {
+      display: block;
+    }
+    .hero-pulse__streak {
+      animation: hero-pulse 6.5s cubic-bezier(0.45, 0, 0.55, 1) 1.2s infinite;
+    }
+    :global([data-offscreen]) .hero-pulse__streak {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes hero-pulse {
+    0% {
+      transform: translateX(-60%);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    55% {
+      opacity: 0.9;
+    }
+    68% {
+      transform: translateX(480%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(480%);
+      opacity: 0;
+    }
+  }
+
+  /* ---------- Load-in: 120ms stagger, 500ms, ease-out ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-stage :global(.orb-card),
+    .hero :global(.hero-card-in) {
+      animation: card-in 500ms ease-out both;
+      animation-delay: calc(350ms + var(--i) * 120ms);
+    }
+  }
+
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import '../scripts/hero-pulse.ts';
+</script>
