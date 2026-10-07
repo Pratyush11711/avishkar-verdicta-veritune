@@ -1,72 +1,77 @@
 ---
+// Simple dark closing panel: logo and tagline, link columns, a copyright line,
+// and a big dim wordmark cropped by the bottom edge.
 import { footer } from '../data/copy';
-import { FOOTER_LINKS, LEGAL_LINKS } from '../data/config';
-import { logo } from '../data/media';
+import { FOOTER_LINKS } from '../data/config';
 import Icon from './ui/Icon.astro';
 
-const logoHeight = 32;
-const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
+const year = new Date().getFullYear();
+const logoHeight = 26;
+const logoWidth = Math.round((750 / 168) * logoHeight);
 ---
 
-<footer class="relative bg-linear-to-b from-frost from-0% to-haze to-[7rem] text-ink">
-  <div class="page grid gap-10 pt-10 pb-12 lg:grid-cols-12 lg:gap-8 lg:pt-12 lg:pb-14">
-    <div class="lg:col-span-6">
-      <img
-        src={logo.src}
-        width={logoWidth}
-        height={logoHeight}
-        alt={logo.alt}
-        loading="lazy"
-        decoding="async"
-        class="block h-8 w-auto"
-      />
-      <p class="mt-5 max-w-[46ch] text-[1rem] leading-relaxed text-ink">{footer.line}</p>
-      <p class="mt-6 inline-flex items-center gap-2 rounded-full bg-white/55 px-3.5 py-1.5 ring-1 ring-white/70">
-        <Icon name="shield-check" size={16} class="text-ink" />
-        <span class="label-mono text-ink">{footer.badge}</span>
-      </p>
-    </div>
+<footer class="site-footer relative overflow-hidden text-white/85">
+  <div class="page relative pt-14 pb-10 lg:pt-16">
+    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr]">
+      <div class="sm:col-span-2 lg:col-span-1">
+        <img src="/logo-white-nav.webp" width={logoWidth} height={logoHeight} alt="Avishkar AI" loading="lazy" decoding="async" class="block h-[1.625rem] w-auto" />
+        <p class="mt-4 max-w-[36ch] text-[0.9375rem] leading-relaxed text-white/55">{footer.line}</p>
+        <p class="mt-5 inline-flex items-center gap-2 rounded-full bg-white/8 px-3 py-1.5 ring-1 ring-white/15">
+          <Icon name="shield-check" size={15} />
+          <span class="label-mono text-white/75">{footer.badge}</span>
+        </p>
+      </div>
 
-    <nav aria-label="Footer" class="lg:col-span-5 lg:col-start-8">
-      <ul class="grid grid-cols-2 gap-x-6 gap-y-1 sm:flex sm:flex-wrap sm:justify-end sm:gap-x-2">
-        {
-          FOOTER_LINKS.map((l) => (
-            <li>
-              <a
-                href={l.href}
-                class="footer-link inline-flex min-h-11 items-center rounded-full text-[0.9375rem] font-medium text-ink sm:px-3"
-              >
-                <span class="center-underline">{l.label}</span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
-  </div>
-
-  <div class="page">
-    <div class="flex flex-col gap-3 border-t border-ink/15 py-6 text-[0.875rem] text-ink sm:flex-row sm:items-center sm:justify-between">
-      <p>© {new Date().getFullYear()} Avishkar AI</p>
-      {
-        LEGAL_LINKS.length > 0 && (
-          <ul class="flex gap-5">
-            {LEGAL_LINKS.map((l) => (
+      <nav aria-label="Footer">
+        <p class="label-mono text-white/40">Explore</p>
+        <ul class="mt-4 space-y-2.5">
+          {
+            FOOTER_LINKS.map((l) => (
               <li>
-                <a href={l.href} class="footer-link inline-flex min-h-11 items-center">
+                <a href={l.href} class="footer-link text-[0.9375rem] font-medium text-white/80">
                   <span class="center-underline">{l.label}</span>
                 </a>
               </li>
-            ))}
-          </ul>
-        )
-      }
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div>
+        <p class="label-mono text-white/40">Company</p>
+        <ul class="mt-4 space-y-2.5">
+          <li class="text-[0.9375rem] font-medium text-white/80">Avishkar AI</li>
+          <li>
+            <a href="#top" class="footer-link text-[0.9375rem] font-medium text-white/80">
+              <span class="center-underline">Back to top</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-10 flex flex-col gap-2 border-t border-white/10 pt-6 text-[0.8125rem] text-white/45 sm:flex-row sm:items-center sm:justify-between">
+      <p>© {year} Avishkar AI. All rights reserved.</p>
     </div>
   </div>
+
+  <!-- Giant dim wordmark, fully visible. Decorative only; the name is already in the logo above. -->
+  <p class="site-footer__wordmark" aria-hidden="true">Avishkar AI</p>
 </footer>
 
 <style>
-  /* Center underline (Daniel Petho): a bar under the label grows from the middle. */
+  .site-footer {
+    background: var(--color-ink);
+  }
+
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
   .center-underline {
     position: relative;
     display: inline-block;
@@ -76,9 +81,9 @@ const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
     content: '';
     position: absolute;
     left: 50%;
-    bottom: -0.01em;
+    bottom: -0.15em;
     width: 0;
-    height: 0.1em;
+    height: 0.0625em;
     background: currentColor;
     transform: translateX(-50%);
     transition: width 250ms ease-in-out;
@@ -87,6 +92,20 @@ const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
   .footer-link:hover .center-underline::after,
   .footer-link:focus-visible .center-underline::after {
     width: 100%;
+  }
+
+  .site-footer__wordmark {
+    margin: 0;
+    padding: 1.5rem clamp(1rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 2.5rem);
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-align: center;
+    font-size: clamp(2.5rem, 11vw, 8rem);
+    white-space: nowrap;
+    color: rgb(255 255 255 / 0.07);
+    user-select: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
