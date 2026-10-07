@@ -145,10 +145,11 @@ import RichText from './ui/RichText.astro';
     z-index: 1;
     pointer-events: none;
   }
+  /* A dismissed card drops behind the stack rather than flying off to the side. */
   .card[data-pos='out'] {
-    transform: translateX(-60%) rotate(-6deg) scale(0.95);
+    transform: translateY(2.75rem) scale(0.82);
     opacity: 0;
-    z-index: 5;
+    z-index: 0;
     pointer-events: none;
   }
 

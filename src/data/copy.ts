@@ -133,14 +133,24 @@ export const suite = {
 export const multilingual = {
   heading: 'QA that works in the languages your customers speak',
   body: [
-    'Global contact centres rarely run in one language. Offshore teams, regional support desks and multilingual customer bases all produce calls that English-only QA tools score badly or skip. Verdicta and Veritune analyse calls in ',
-    languages,
-    '. ',
+    'Global contact centres rarely run in one language. Offshore teams, regional support desks and multilingual customer bases all produce calls that English-only QA tools score badly or skip. Verdicta and Veritune analyse those calls. ',
     flag(
       'Scoring, summaries and sentiment come back in English, so one QA team can review every region on the same dashboard.',
       'Brief: "Confirm: scoring, summaries and sentiment come back in English".',
     ),
   ] satisfies Rich,
+  /** Visual list for the orbit. The FAQ still uses the flagged sentence above. */
+  languageNote: 'Open item: confirm all eight listed languages.',
+  languageItems: [
+    { name: 'English', code: 'gb' },
+    { name: 'Spanish', code: 'es' },
+    { name: 'French', code: 'fr' },
+    { name: 'German', code: 'de' },
+    { name: 'Portuguese', code: 'pt' },
+    { name: 'Arabic', code: 'sa' },
+    { name: 'Mandarin', code: 'cn' },
+    { name: 'Japanese', code: 'jp' },
+  ],
   /** Optional line. Set to null to remove it from the page. */
   optionalLine: [
     flag(
@@ -227,9 +237,7 @@ export const pilot = {
     },
   ] satisfies Card[],
   note: [
-    'Pilot turnaround is ',
-    flag('[X business days]', 'Open item: pilot turnaround time. Placeholder rendered as written so it cannot ship unnoticed.'),
-    ' from receiving recordings. ',
+    'Pilot turnaround is 5 business days from receiving recordings. ',
     flag('Your data is used only for your pilot.', 'Open item: confirm pilot data policy.'),
   ] satisfies Rich,
   button: 'Start your free pilot',

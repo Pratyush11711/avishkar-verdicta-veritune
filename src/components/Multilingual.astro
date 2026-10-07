@@ -2,6 +2,7 @@
 import { multilingual } from '../data/copy';
 import { SECTION_IDS } from '../data/config';
 import { images } from '../data/media';
+import Flag from './ui/Flag.astro';
 import MediaSlot from './ui/MediaSlot.astro';
 import Reveal from './ui/Reveal.astro';
 import RichText from './ui/RichText.astro';
@@ -19,18 +20,39 @@ import RichText from './ui/RichText.astro';
           </p>
         )
       }
-      <ul class="mt-8 space-y-3">
+      <ul class="points">
         {
           multilingual.points.map((pt) => (
-            <li class="glass-flat flex items-start gap-3.5 rounded-xl px-4 py-3.5 text-[1rem] leading-relaxed text-ink">
-              <span class="mt-[0.55em] size-2 shrink-0 rounded-full bg-mint ring-4 ring-mint/25" aria-hidden="true" />
-              <span>
-                <RichText segments={pt} />
-              </span>
+            <li>
+              <RichText segments={pt} />
             </li>
           ))
         }
       </ul>
+
+      <div class="marquee-block">
+        <p class="marquee-caption">
+          <Flag note={multilingual.languageNote}>
+            <span class="label-mono text-slate">Languages</span>
+          </Flag>
+        </p>
+        <div class="marquee" data-marquee>
+          {
+            [0, 1].map((group) => (
+              <ul class="marquee__group" aria-hidden={group === 1 ? 'true' : undefined}>
+                {
+                  multilingual.languageItems.map((lang) => (
+                    <li class="marquee__item">
+                      <img class="marquee__flag" src={`/flags/${lang.code}.svg`} alt="" width="36" height="24" decoding="async" />
+                      <span class="marquee__label">{lang.name}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            ))
+          }
+        </div>
+      </div>
     </Reveal>
 
     <Reveal class="lg:col-span-6">
@@ -44,3 +66,108 @@ import RichText from './ui/RichText.astro';
     </Reveal>
   </div>
 </section>
+
+<style>
+  .points {
+    margin-top: 1.25rem;
+    padding-left: 1.15rem;
+    list-style: disc;
+    color: var(--color-ink);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .points li + li {
+    margin-top: 0.4rem;
+  }
+
+  .points li::marker {
+    color: var(--color-mint-ink);
+  }
+
+  /* 21st.dev @tom_ui "Marquee": two identical groups animate in lockstep so the loop is seamless. */
+  .marquee-block {
+    margin-top: 1.5rem;
+  }
+
+  .marquee-caption {
+    text-align: left;
+    margin-bottom: 0.75rem;
+  }
+
+  .marquee {
+    --duration: 48s;
+    --gap: 1.5rem;
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    gap: var(--gap);
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+
+  .marquee:hover .marquee__group {
+    animation-play-state: paused;
+  }
+
+  .marquee__group {
+    display: flex;
+    flex-shrink: 0;
+    gap: var(--gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    animation: marquee-scroll var(--duration) linear infinite;
+  }
+
+  .marquee__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem 0.4rem 0.4rem;
+    border-radius: 999px;
+    background: var(--color-frost);
+    border: 1px solid rgb(22 33 58 / 0.08);
+    white-space: nowrap;
+  }
+
+  .marquee__flag {
+    display: block;
+    width: 1.5rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    object-fit: cover;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.7);
+  }
+
+  .marquee__label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      overflow-x: auto;
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+
+    .marquee__group {
+      animation: none;
+    }
+
+    .marquee__group[aria-hidden='true'] {
+      display: none;
+    }
+  }
+</style>

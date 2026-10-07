@@ -136,10 +136,28 @@ export const images = {
 
 export type ImageKey = keyof typeof images;
 
-/** Product UI screenshots for sections 04 and 05. Not supplied yet, so ProductFrame renders a placeholder. */
+/** Product UI screenshots for sections 04 and 05. */
 export const productScreenshots: Record<'verdicta' | 'veritune', ImageSlot | null> = {
-  verdicta: null,
-  veritune: null,
+  verdicta: img(
+    'IMG 7',
+    'img7-verdicta-dash',
+    '/dashboard/Calm glassmorphic campaign analytics dashboard (1).png',
+    1670,
+    942,
+    [640, 1680],
+    1680,
+    'Verdicta dashboard showing total samples, SIP and bucket counts, a category analytics chart scored by parameter, and an overall achievement gauge',
+  ),
+  veritune: img(
+    'IMG 8',
+    'img8-veritune-dash',
+    '/dashboard/Seafoam glass call analysis dashboard_upscaled.png',
+    1663,
+    946,
+    [640, 1680],
+    1680,
+    'Veritune call analysis panel with audio playback, a call summary and a detailed script adherence breakdown for a single call',
+  ),
 };
 
 const icon = (slot: string, name: string, original: string): IconSlot => ({

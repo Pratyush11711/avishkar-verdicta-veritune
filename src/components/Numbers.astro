@@ -139,6 +139,16 @@ import Reveal from './ui/Reveal.astro';
     z-index: 2;
   }
 
+  /* Pin to the brand display face explicitly, so a fallback font never shows on the digits. */
+  .stat-value {
+    font-family: var(--font-display);
+    font-feature-settings: "tnum" 1;
+  }
+
+  .stat-label {
+    font-family: var(--font-sans);
+  }
+
   .stat-rule {
     display: block;
     width: 100%;

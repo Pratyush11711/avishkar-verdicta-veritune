@@ -17,6 +17,8 @@ const images = {
   'img4-suite': { src: 'public/images/Suite_band.png', widths: [960, 2048] },
   'img5-multilingual': { src: 'public/images/Multilingual.png', widths: [640, 1200] },
   'img6-cta': { src: 'public/images/Final_CTA.png', widths: [960, 1344] },
+  'img7-verdicta-dash': { src: 'public/dashboard/Calm glassmorphic campaign analytics dashboard (1).png', widths: [640, 1680] },
+  'img8-veritune-dash': { src: 'public/dashboard/Seafoam glass call analysis dashboard_upscaled.png', widths: [640, 1680] },
 };
 
 const icons = {

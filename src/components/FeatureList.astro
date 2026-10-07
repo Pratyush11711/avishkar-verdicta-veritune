@@ -5,9 +5,22 @@ interface Props {
 }
 
 const { features, dot } = Astro.props;
+
+/** Character groups for the Ruixen blurred stagger. Spaces stay in the sequence so the delay matches the source. */
+function words(text: string) {
+  const groups: { chars: { ch: string; i: number }[]; space: number | null }[] = [];
+  let i = 0;
+  const parts = text.split(' ');
+  parts.forEach((word, wi) => {
+    const chars = [...word].map((ch) => ({ ch, i: i++ }));
+    const space = wi < parts.length - 1 ? i++ : null;
+    groups.push({ chars, space });
+  });
+  return groups;
+}
 ---
 
-<ul class="grid gap-x-10 sm:grid-cols-2" data-reveal-stagger>
+<ul class="feature-list grid gap-x-10 sm:grid-cols-2" data-reveal-stagger>
   {
     features.map((f) => (
       <li class="flex gap-3.5 border-t border-ink/8 py-4 text-[1rem] leading-relaxed text-slate">
@@ -15,8 +28,61 @@ const { features, dot } = Astro.props;
           class:list={['mt-[0.6em] size-2 shrink-0 rounded-full ring-4', dot === 'aqua' ? 'bg-aqua ring-aqua/20' : 'bg-sky ring-sky/20']}
           aria-hidden="true"
         />
-        <span>{f}</span>
+        <span class="feature-copy">
+          <span class="sr-only">{f}</span>
+          <span aria-hidden="true">
+            {words(f).map((word) => (
+              <>
+                <span class="feature-word">
+                  {word.chars.map((c) => (
+                    <span class="feature-char" style={`--char:${c.i}`}>
+                      {c.ch}
+                    </span>
+                  ))}
+                </span>
+                {word.space !== null && (
+                  <span class="feature-char" style={`--char:${word.space}`}>
+                    {'\u00A0'}
+                  </span>
+                )}
+              </>
+            ))}
+          </span>
+        </span>
       </li>
     ))
   }
 </ul>
+
+<style>
+  /* Ruixen BlurredStagger: each character clears from a 10px blur, 15ms apart. */
+  .feature-word,
+  .feature-char {
+    display: inline-block;
+  }
+
+  .feature-word {
+    white-space: nowrap;
+  }
+
+  :global(.js) .feature-list > li {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .feature-char {
+      opacity: 0;
+      filter: blur(10px);
+    }
+
+    :global(.js) .feature-list > li:global(.is-revealed) .feature-char {
+      opacity: 1;
+      filter: blur(0);
+      transition:
+        opacity 300ms ease,
+        filter 300ms ease;
+      transition-delay: calc(var(--reveal-delay, 0ms) + var(--char) * 15ms);
+    }
+  }
+</style>
