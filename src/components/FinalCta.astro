@@ -2,8 +2,8 @@
 import { finalCta } from '../data/copy';
 import { PILOT_CTA_HREF, SECTION_IDS, TALK_TO_TEAM_HREF } from '../data/config';
 import { images } from '../data/media';
-import Accent from './ui/Accent.astro';
 import Button from './ui/Button.astro';
+import GlowText from './ui/GlowText.astro';
 import MediaSlot from './ui/MediaSlot.astro';
 import Reveal from './ui/Reveal.astro';
 ---
@@ -20,13 +20,11 @@ import Reveal from './ui/Reveal.astro';
   />
   <div class="page cta-content">
     <Reveal class="mx-auto max-w-[40rem] text-center">
-      <h2 id="final-heading" class="text-h2">
-        <Accent text={finalCta.heading} />
-      </h2>
-      <p class="mt-5 text-body">{finalCta.body}</p>
+      <GlowText id="final-heading" as="h2" class="text-h2" text={finalCta.heading} />
+      <GlowText as="p" class="mt-5 text-body" text={finalCta.body} />
       <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
         <Button href={PILOT_CTA_HREF} icon="arrow-right">{finalCta.primary}</Button>
-        <Button href={TALK_TO_TEAM_HREF} variant="text">{finalCta.secondary}</Button>
+        <Button href={TALK_TO_TEAM_HREF} variant="secondary">{finalCta.secondary}</Button>
       </div>
     </Reveal>
   </div>

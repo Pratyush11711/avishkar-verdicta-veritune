@@ -7,14 +7,19 @@ import Reveal from './ui/Reveal.astro';
 import SectionLabel from './ui/SectionLabel.astro';
 import FeatureList from './FeatureList.astro';
 import ProductFrame from './ProductFrame.astro';
+import CallIntelligence from './CallIntelligence.astro';
 
 interface Props {
   product: ProductCopy;
   /** Text left, image right. */
   mirrored?: boolean;
+  /** Glide the whole section in from this side as it scrolls into view. */
+  slideFrom?: 'left' | 'right';
+  /** Glide the heading in from the left and the photo in from the right. */
+  splitSlide?: boolean;
 }
 
-const { product, mirrored = false } = Astro.props;
+const { product, mirrored = false, slideFrom, splitSlide = false } = Astro.props;
 const isVerdicta = product.key === 'verdicta';
 const dot = isVerdicta ? 'aqua' : 'sky';
 const name = isVerdicta ? 'Verdicta' : 'Veritune';
@@ -22,10 +27,10 @@ const image = images[product.key];
 const headingId = `${product.key}-heading`;
 ---
 
-<section id={product.key} aria-labelledby={headingId} class="section-y">
-  <div class="page">
+<section id={product.key} aria-labelledby={headingId} class:list={['section-y overflow-x-clip', isVerdicta ? 'glow-aqua' : 'glow-sky']}>
+  <div class="page" data-reveal={slideFrom ? '' : undefined} data-slide={slideFrom}>
     <div class="grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
-      <Reveal class:list={['lg:col-span-5', mirrored && 'lg:order-2 lg:col-start-8']}>
+      <Reveal class:list={['lg:col-span-5', mirrored && 'lg:order-2 lg:col-start-8']} data-slide={splitSlide ? 'right' : undefined}>
         <MediaSlot
           image={image}
           label={`${isVerdicta ? 'IMG 2' : 'IMG 3'} · 1:1`}
@@ -35,7 +40,7 @@ const headingId = `${product.key}-heading`;
         />
       </Reveal>
 
-      <Reveal class:list={['lg:col-span-6', mirrored ? 'lg:order-1 lg:col-start-1' : 'lg:col-start-7']}>
+      <Reveal class:list={['lg:col-span-6', mirrored ? 'lg:order-1 lg:col-start-1' : 'lg:col-start-7']} data-slide={splitSlide ? 'left' : undefined}>
         <SectionLabel dot={dot}>{product.label}</SectionLabel>
         <h2 id={headingId} class="mt-5 text-h2">
           <Accent text={product.heading} />
@@ -50,6 +55,10 @@ const headingId = `${product.key}-heading`;
 
     <div class="mt-12 lg:mt-16">
       <ProductFrame product={name} screenshot={productScreenshots[product.key]} />
+    </div>
+
+    <div class="mt-6 lg:mt-8">
+      <CallIntelligence product={name} />
     </div>
   </div>
 </section>

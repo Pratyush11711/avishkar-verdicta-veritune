@@ -2,6 +2,7 @@
 import { suite } from '../data/copy';
 import { SECTION_IDS } from '../data/config';
 import { images } from '../data/media';
+import GlowText from './ui/GlowText.astro';
 import MediaSlot from './ui/MediaSlot.astro';
 import Reveal from './ui/Reveal.astro';
 ---
@@ -19,18 +20,30 @@ import Reveal from './ui/Reveal.astro';
   <div class="page band-content">
     <Reveal class="mx-auto max-w-[46rem] text-center">
       <p class="text-[0.75rem] font-medium tracking-[0.16em] text-ink uppercase">{suite.eyebrow}</p>
-      <h2 id="suite-line" class="mt-5 text-h2 font-semibold text-balance">
-        {suite.heading}
-      </h2>
-      <p class="accent mt-2 text-[clamp(1.75rem,1.2rem+1.6vw,2.5rem)] leading-[1.2] text-balance text-ink">
-        {suite.accent}
-      </p>
-      <p class="mt-5 text-[1.0625rem] leading-relaxed text-slate">{suite.line}</p>
+      <GlowText id="suite-line" as="h2" class="mt-5 text-h2 font-semibold text-balance" text={suite.heading} />
+      <GlowText
+        as="p"
+        class="suite-accent mt-2 text-[clamp(1.75rem,1.2rem+1.6vw,2.5rem)] leading-[1.2] text-balance"
+        text={suite.accent}
+      />
+      <GlowText as="p" class="mt-5 text-[1.0625rem] leading-relaxed text-slate" text={suite.line} />
     </Reveal>
   </div>
 </section>
 
 <style>
+  /* Italic serif, without the accent gradient. That gradient clips the fill to
+     transparent, which hides the glowing letters. */
+  .band :global(.suite-accent) {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--color-ink);
+    -webkit-text-fill-color: currentColor;
+    background: none;
+  }
+
   /* Render is 16:9 with the cord at ~59% height and empty sky above it. */
   /* Mobile: the render sits in the bottom 24rem only, so the orbs never run under the text. */
   .band-content {

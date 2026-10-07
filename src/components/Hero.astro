@@ -2,10 +2,18 @@
 import { hero, heroCards } from '../data/copy';
 import { PILOT_CTA_HREF, SECTION_IDS } from '../data/config';
 import { images, heroGeometry } from '../data/media';
-import Accent from './ui/Accent.astro';
 import Button from './ui/Button.astro';
 import MediaSlot from './ui/MediaSlot.astro';
 import FloatingCard from './FloatingCard.astro';
+import { splitAccent, stripAccent } from '../lib/accent';
+
+/** Headline words for the blur-in. The accent phrase stays one unit so its gradient flows across both words. */
+const tokens = splitAccent(hero.headline).flatMap((p) =>
+  p.accent ? [{ text: p.text, accent: true }] : p.text.split(/\s+/).filter(Boolean).map((text) => ({ text, accent: false })),
+);
+
+const subWords = hero.subhead.split(/\s+/).filter(Boolean);
+const noteWords = hero.underButtons.split(/\s+/).filter(Boolean);
 
 const { orbs, pulse, orbRadius } = heroGeometry;
 const ratio = images.hero.height / images.hero.width;
@@ -21,26 +29,59 @@ const stageVars = [
 ---
 
 <section id={SECTION_IDS.top} data-hero aria-labelledby="hero-heading" class="hero relative isolate">
-  <div class="hero-text page relative z-10 pt-32 text-center sm:pt-36 lg:pt-40">
+  <div class="hero-text page relative z-10 pt-32 text-center sm:pt-36 lg:pt-40" data-hero-text>
+    <div class="hero-aurora" aria-hidden="true">
+      <i class="hero-aurora__blob hero-aurora__blob--aqua"></i>
+      <i class="hero-aurora__blob hero-aurora__blob--sky"></i>
+      <i class="hero-aurora__blob hero-aurora__blob--mint"></i>
+      <i class="hero-aurora__blob hero-aurora__blob--apricot"></i>
+      <i class="hero-spot"></i>
+    </div>
+
     <p
-      class="glass-flat mx-auto inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.8125rem] font-medium text-ink/80 sm:px-4 sm:text-[0.875rem]"
+      class="hero-eyebrow glass-flat mx-auto inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.8125rem] font-medium sm:px-4 sm:text-[0.875rem]"
     >
-      <span class="size-1.5 rounded-full bg-aqua" aria-hidden="true"></span>
-      {hero.eyebrow}
+      <span class="hero-dot" aria-hidden="true"></span>
+      <span class="hero-shiny">{hero.eyebrow}</span>
     </p>
 
     <h1 id="hero-heading" class="mx-auto mt-6 max-w-[17em] text-hero font-semibold">
-      <Accent text={hero.headline} />
+      <span class="sr-only">{stripAccent(hero.headline)}</span>
+      <span aria-hidden="true">
+        {
+          tokens.map((t, i) => (
+            <>
+              <span class:list={['hw', t.accent && 'hw-accent']} style={`--w:${i}`}>
+                {t.accent ? <em class="accent accent-flow">{t.text}</em> : t.text}
+              </span>
+              {i < tokens.length - 1 ? ' ' : null}
+            </>
+          ))
+        }
+      </span>
     </h1>
 
-    <p class="mx-auto mt-6 max-w-[62ch] text-lead text-slate">{hero.subhead}</p>
+    <p class="mx-auto mt-6 max-w-[62ch] text-lead text-slate">
+      <span class="sr-only">{hero.subhead}</span>
+      <span aria-hidden="true">
+        {subWords.map((w, i) => (<><span class="hw" style={`--w:${i};--base:900ms;--step:24ms`}>{w}</span>{i < subWords.length - 1 ? ' ' : null}</>))}
+      </span>
+    </p>
 
-    <div class="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+    <div
+      class="hero-rise mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center"
+      style="--base:1750ms"
+    >
       <Button href={PILOT_CTA_HREF} icon="arrow-right">{hero.primary}</Button>
       <Button href={`#${SECTION_IDS.pilot}`} variant="secondary" icon="arrow-down">{hero.secondary}</Button>
     </div>
 
-    <p class="mx-auto mt-5 max-w-[64ch] text-[0.9375rem] leading-relaxed text-ink/75">{hero.underButtons}</p>
+    <p class="mx-auto mt-5 max-w-[64ch] text-[0.9375rem] leading-relaxed text-ink/75">
+      <span class="sr-only">{hero.underButtons}</span>
+      <span aria-hidden="true">
+        {noteWords.map((w, i) => (<><span class="hw" style={`--w:${i};--base:1950ms;--step:30ms`}>{w}</span>{i < noteWords.length - 1 ? ' ' : null}</>))}
+      </span>
+    </p>
   </div>
 
   <div class="hero-stage" style={stageVars}>
@@ -65,6 +106,7 @@ const stageVars = [
               card={card}
               class="orb-card"
               data-side={o.side}
+              data-scroll-float
               style={`--x:${o.x};--y:${o.y};--stem:${o.stem}px;--i:${i}`}
             />
           );
@@ -80,7 +122,7 @@ const stageVars = [
     {
       heroCards
         .filter((c) => c.compact)
-        .map((card, i) => <FloatingCard card={card} class="hero-card-in" style={`--i:${i}`} />)
+        .map((card, i) => <FloatingCard card={card} class="hero-card-in" data-scroll-float style={`--i:${i}`} />)
     }
   </div>
 </section>
@@ -102,6 +144,270 @@ const stageVars = [
       color-mix(in srgb, var(--color-mist) 0%, transparent) 100%
     );
     pointer-events: none;
+  }
+
+  /* ---------- Hero intro motion ---------- */
+
+  /* Aurora: slow drifting colour behind the headline, faded out toward the edges. */
+  .hero-aurora {
+    position: absolute;
+    inset: -1rem 0 -7rem;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    -webkit-mask-image: radial-gradient(closest-side at 50% 46%, #000 0%, #000 52%, transparent 100%);
+    mask-image: radial-gradient(closest-side at 50% 46%, #000 0%, #000 52%, transparent 100%);
+  }
+
+  .hero-aurora__blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(56px);
+    opacity: 0.55;
+  }
+
+  .hero-aurora__blob--aqua {
+    left: 8%;
+    top: 12%;
+    width: 34rem;
+    height: 20rem;
+    background: radial-gradient(closest-side, var(--color-aqua), transparent);
+  }
+
+  .hero-aurora__blob--sky {
+    right: 6%;
+    top: 4%;
+    width: 36rem;
+    height: 22rem;
+    background: radial-gradient(closest-side, var(--color-sky), transparent);
+  }
+
+  .hero-aurora__blob--mint {
+    left: 34%;
+    top: 30%;
+    width: 28rem;
+    height: 16rem;
+    background: radial-gradient(closest-side, var(--color-mint), transparent);
+  }
+
+  .hero-aurora__blob--apricot {
+    right: 24%;
+    top: 46%;
+    width: 18rem;
+    height: 10rem;
+    opacity: 0.32;
+    background: radial-gradient(closest-side, var(--color-apricot), transparent);
+  }
+
+  /* Cursor spotlight. Hidden until the pointer moves over the hero. */
+  .hero-spot {
+    position: absolute;
+    left: var(--mx, 50%);
+    top: var(--my, 40%);
+    width: 30rem;
+    height: 30rem;
+    margin: -15rem 0 0 -15rem;
+    border-radius: 9999px;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.75), rgb(255 255 255 / 0));
+    opacity: 0;
+    transition: opacity 400ms ease;
+  }
+
+  :global([data-hero-text].is-spot) .hero-spot {
+    opacity: 1;
+  }
+
+  /* Eyebrow: Shiny Text sweep and a pinging dot. */
+  .hero-eyebrow {
+    color: rgb(22 33 58 / 0.78);
+  }
+
+  .hero-dot {
+    position: relative;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background: var(--color-aqua);
+  }
+
+  .hero-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--color-aqua);
+  }
+
+  .hero-shiny {
+    color: transparent;
+    background-image: linear-gradient(110deg, rgb(22 33 58 / 0.78) 38%, #1d6a9e 50%, rgb(22 33 58 / 0.78) 62%);
+    background-size: 220% 100%;
+    background-position: 130% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  /* Headline words. */
+  .hw {
+    display: inline-block;
+  }
+
+  .hw-accent {
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .accent-flow {
+    /* background-clip:text only paints inside the box, so give descenders (y, p) and the
+       italic overhang room, and pull the layout back with negative margins. */
+    padding-block: 0.06em 0.22em;
+    padding-left: 0.06em;
+    margin-block: -0.06em -0.22em;
+    margin-left: -0.06em;
+    background-image: linear-gradient(
+      100deg,
+      var(--color-ink) 0%,
+      color-mix(in srgb, var(--color-sky) 62%, var(--color-ink)) 28%,
+      color-mix(in srgb, var(--color-aqua) 58%, var(--color-ink)) 52%,
+      color-mix(in srgb, var(--color-sky) 62%, var(--color-ink)) 76%,
+      var(--color-ink) 100%
+    );
+    background-size: 240% 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-aurora__blob--aqua {
+      animation: aurora-a 17s ease-in-out infinite alternate;
+    }
+    .hero-aurora__blob--sky {
+      animation: aurora-b 21s ease-in-out infinite alternate;
+    }
+    .hero-aurora__blob--mint {
+      animation: aurora-c 19s ease-in-out infinite alternate;
+    }
+    .hero-aurora__blob--apricot {
+      animation: aurora-a 23s ease-in-out infinite alternate-reverse;
+    }
+
+    .hero-eyebrow {
+      animation: hero-drop 700ms var(--ease-out-soft) both;
+    }
+
+    .hero-shiny {
+      animation: hero-shine 3.4s linear 1.2s infinite;
+    }
+
+    .hero-dot::after {
+      animation: hero-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    .hw {
+      animation: hero-word 900ms var(--ease-out-soft) both;
+      animation-delay: calc(var(--base, 220ms) + var(--w) * var(--step, 95ms));
+    }
+
+    .accent-flow {
+      animation: accent-flow 7s ease-in-out 1.4s infinite alternate;
+    }
+
+    /* Buttons use the same blur-in as the headline words. */
+    .hero-rise {
+      animation: hero-word 900ms var(--ease-out-soft) both;
+      animation-delay: var(--base, 1500ms);
+    }
+
+    .hero-stage > :global(picture) {
+      animation: hero-zoom 2.4s var(--ease-out-soft) both;
+      transform-origin: 50% 20%;
+    }
+
+    :global([data-offscreen]) .hero-aurora__blob,
+    :global([data-offscreen]) .hero-shiny,
+    :global([data-offscreen]) .accent-flow,
+    :global([data-offscreen]) .hero-dot::after {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes hero-word {
+    from {
+      opacity: 0;
+      filter: blur(14px);
+      transform: translateY(0.4em);
+    }
+    55% {
+      opacity: 1;
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: none;
+    }
+  }
+
+  @keyframes hero-drop {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes hero-shine {
+    from {
+      background-position: 130% 0;
+    }
+    to {
+      background-position: -30% 0;
+    }
+  }
+
+  @keyframes hero-ping {
+    75%,
+    100% {
+      transform: scale(3.2);
+      opacity: 0;
+    }
+  }
+
+  @keyframes accent-flow {
+    from {
+      background-position: 0% 50%;
+    }
+    to {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes hero-zoom {
+    from {
+      transform: scale(1.06);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes aurora-a {
+    to {
+      transform: translate3d(7rem, 2.5rem, 0) scale(1.18);
+    }
+  }
+
+  @keyframes aurora-b {
+    to {
+      transform: translate3d(-8rem, 3.5rem, 0) scale(0.9);
+    }
+  }
+
+  @keyframes aurora-c {
+    to {
+      transform: translate3d(-4rem, -2.5rem, 0) scale(1.22);
+    }
   }
 
   /* Image box. Everything inside is positioned in cqw so it tracks the render exactly. */
@@ -260,27 +566,23 @@ const stageVars = [
     }
   }
 
-  /* ---------- Load-in: 120ms stagger, 500ms, ease-out ---------- */
+  /* Scroll Float (React Bits): cards start sunk and stretched, then rise into place. */
   @media (prefers-reduced-motion: no-preference) {
-    .hero-stage :global(.orb-card),
-    .hero :global(.hero-card-in) {
-      animation: card-in 500ms ease-out both;
-      animation-delay: calc(350ms + var(--i) * 120ms);
-    }
-  }
-
-  @keyframes card-in {
-    from {
+    :global(.js) .hero-stage :global(.orb-card),
+    :global(.js) .hero :global(.hero-card-in) {
       opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(72%) scale(0.88, 1.28);
+      transform-origin: 50% 0%;
+      will-change: transform, opacity;
     }
-    to {
-      opacity: 1;
-      transform: none;
+
+    :global(.js) .hero-stage :global(.orb-card[data-side='above']) {
+      transform-origin: 50% 100%;
     }
   }
 </style>
 
 <script>
   import '../scripts/hero-pulse.ts';
+  import '../scripts/hero-spot.ts';
 </script>

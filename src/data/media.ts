@@ -151,11 +151,11 @@ export const productScreenshots: Record<'verdicta' | 'veritune', ImageSlot | nul
   veritune: img(
     'IMG 8',
     'img8-veritune-dash',
-    '/dashboard/Seafoam glass call analysis dashboard_upscaled.png',
-    1663,
-    946,
-    [640, 1680],
-    1680,
+    '/dashboard/veritune-analysis.jpg',
+    1024,
+    582,
+    [640, 1024],
+    1024,
     'Veritune call analysis panel with audio playback, a call summary and a detailed script adherence breakdown for a single call',
   ),
 };

@@ -133,9 +133,9 @@ export const suite = {
 export const multilingual = {
   heading: 'QA that works in the languages your customers speak',
   body: [
-    'Global contact centres rarely run in one language. Offshore teams, regional support desks and multilingual customer bases all produce calls that English-only QA tools score badly or skip. Verdicta and Veritune analyse those calls. ',
+    'English-only QA tools score multilingual calls badly or skip them. Verdicta and Veritune analyse those calls, and ',
     flag(
-      'Scoring, summaries and sentiment come back in English, so one QA team can review every region on the same dashboard.',
+      'scoring, summaries and sentiment come back in English.',
       'Brief: "Confirm: scoring, summaries and sentiment come back in English".',
     ),
   ] satisfies Rich,

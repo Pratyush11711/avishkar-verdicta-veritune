@@ -20,9 +20,13 @@ import { verdicta, veritune } from '../data/copy';
   <Nav />
   <main id="main">
     <Hero />
-    <Problem />
-    <ProductSection product={verdicta} />
-    <ProductSection product={veritune} mirrored />
+    <div class="panel panel-cool">
+      <Problem />
+      <ProductSection product={verdicta} slideFrom="right" />
+    </div>
+    <div class="panel panel-mint">
+      <ProductSection product={veritune} mirrored splitSlide />
+    </div>
     <SuiteBand />
     <Multilingual />
     <Numbers />
@@ -34,3 +38,31 @@ import { verdicta, veritune } from '../data/copy';
   </main>
   <Footer />
 </Base>
+
+<style>
+  .panel {
+    margin: 0.25rem clamp(0.75rem, 1.6vw, 1.75rem) 1.75rem;
+    border-radius: clamp(1.25rem, 1.6vw, 2rem);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      0 0 0 1px var(--panel-edge);
+  }
+
+  /* Problem and Verdicta: cool blue-green. */
+  .panel-cool {
+    --panel-edge: color-mix(in srgb, var(--color-sky) 24%, transparent);
+    background:
+      radial-gradient(ellipse 40rem 16rem at 8% 0, color-mix(in srgb, var(--color-sky) 28%, transparent), transparent 70%),
+      radial-gradient(ellipse 34rem 18rem at 96% 100%, color-mix(in srgb, var(--color-aqua) 22%, transparent), transparent 72%),
+      linear-gradient(165deg, #eef5f8 0%, #e6f2ef 52%, #eef3f6 100%);
+  }
+
+  /* Veritune: mint, so it reads apart from the blue-green panel above. */
+  .panel-mint {
+    --panel-edge: color-mix(in srgb, var(--color-mint) 55%, transparent);
+    background:
+      radial-gradient(ellipse 40rem 16rem at 92% 0, color-mix(in srgb, var(--color-mint) 42%, transparent), transparent 70%),
+      radial-gradient(ellipse 34rem 18rem at 6% 100%, color-mix(in srgb, var(--color-mint) 28%, transparent), transparent 72%),
+      linear-gradient(165deg, #f3faf6 0%, #e7f5ee 52%, #f1f8f4 100%);
+  }
+</style>

@@ -1,0 +1,132 @@
+---
+import { splitAccent, stripAccent } from '../../lib/accent';
+
+interface Props {
+  text: string;
+  class?: string;
+  id?: string;
+  as?: 'h1' | 'h2' | 'h3' | 'p';
+  /** Seconds before the first character starts, so stacked lines don't glow at once. */
+  delay?: number;
+}
+
+const { text, class: className, id, as: Tag = 'p', delay = 0 } = Astro.props;
+
+const STAGGER = 0.028;
+const DURATION = 0.48;
+
+interface Token {
+  text: string;
+  accent: boolean;
+  start: number;
+  isSpace: boolean;
+}
+
+const tokens: Token[] = [];
+let cursor = 0;
+for (const part of splitAccent(text)) {
+  for (const piece of part.text.match(/\s+|\S+/g) ?? []) {
+    tokens.push({
+      text: piece,
+      accent: part.accent,
+      start: cursor,
+      isSpace: /^\s/.test(piece),
+    });
+    cursor += [...piece].length;
+  }
+}
+---
+
+<Tag id={id} class:list={['glow-text', className]} data-glow aria-label={stripAccent(text)}>
+  {
+    tokens.map((token) =>
+      token.isSpace ? (
+        <span class="glow-space" aria-hidden="true">
+          {token.text}
+        </span>
+      ) : (
+        <span class:list={['glow-word', token.accent && 'accent']} aria-hidden="true">
+          {[...token.text].map((character, index) => (
+            <span
+              class="glow-char"
+              style={`--char-delay:${delay + (token.start + index) * STAGGER}s;--char-duration:${DURATION}s`}
+            >
+              {character}
+            </span>
+          ))}
+        </span>
+      ),
+    )
+  }
+</Tag>
+
+<style>
+  .glow-word {
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .glow-space {
+    white-space: pre;
+  }
+  .glow-char {
+    display: inline-block;
+    opacity: 0;
+    /* The accent style fills letters from a clipped gradient and sets the
+       fill to transparent. Keep the glyphs themselves opaque so they can glow. */
+    -webkit-text-fill-color: currentColor;
+  }
+  .glow-text.is-on .glow-char {
+    animation: glowing-char-reveal var(--char-duration) ease-out var(--char-delay) forwards;
+  }
+
+  /* Letters arrive bright, then rest as the page's ink. */
+  @keyframes glowing-char-reveal {
+    0% {
+      opacity: 0;
+      text-shadow: none;
+    }
+    45% {
+      opacity: 1;
+      color: var(--color-ink);
+      text-shadow:
+        0 0 8px color-mix(in srgb, var(--color-aqua) 90%, white),
+        0 0 18px color-mix(in srgb, var(--color-sky) 80%, white),
+        0 0 32px color-mix(in srgb, var(--color-aqua) 55%, transparent);
+    }
+    100% {
+      opacity: 1;
+      color: inherit;
+      text-shadow: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glow-char {
+      opacity: 1;
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const nodes = document.querySelectorAll<HTMLElement>('[data-glow]');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const start = (el: HTMLElement) => el.classList.add('is-on');
+
+  if (reduced || !('IntersectionObserver' in window)) {
+    nodes.forEach(start);
+  } else {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          start(entry.target as HTMLElement);
+          io.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.4 },
+    );
+    nodes.forEach((el) => io.observe(el));
+  }
+</script>

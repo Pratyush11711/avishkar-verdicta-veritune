@@ -1,10 +1,15 @@
 ---
+import Icon from './ui/Icon.astro';
+
 interface Props {
   features: string[];
   dot: 'aqua' | 'sky';
 }
 
-const { features, dot } = Astro.props;
+const { features } = Astro.props;
+
+/** Each chip stays blank until the list scrolls in, then fills in order with one of these brand colours. */
+const tones = ['aqua', 'mint', 'sky', 'apricot', 'coral'] as const;
 
 /** Character groups for the Ruixen blurred stagger. Spaces stay in the sequence so the delay matches the source. */
 function words(text: string) {
@@ -22,12 +27,15 @@ function words(text: string) {
 
 <ul class="feature-list grid gap-x-10 sm:grid-cols-2" data-reveal-stagger>
   {
-    features.map((f) => (
+    features.map((f, i) => (
       <li class="flex gap-3.5 border-t border-ink/8 py-4 text-[1rem] leading-relaxed text-slate">
         <span
-          class:list={['mt-[0.6em] size-2 shrink-0 rounded-full ring-4', dot === 'aqua' ? 'bg-aqua ring-aqua/20' : 'bg-sky ring-sky/20']}
+          class="feature-dot mt-[0.1em] flex size-5 shrink-0 items-center justify-center rounded-md"
+          style={`--dot:var(--color-${tones[i % tones.length]});--i:${i}`}
           aria-hidden="true"
-        />
+        >
+          <Icon name="check" size={12} class="feature-dot__icon" />
+        </span>
         <span class="feature-copy">
           <span class="sr-only">{f}</span>
           <span aria-hidden="true">
@@ -83,6 +91,36 @@ function words(text: string) {
         opacity 300ms ease,
         filter 300ms ease;
       transition-delay: calc(var(--reveal-delay, 0ms) + var(--char) * 15ms);
+    }
+  }
+
+  /* Finished state: a soft fill plus a glow in that row's brand colour. */
+  .feature-dot {
+    background-color: color-mix(in srgb, var(--dot) 42%, white);
+    color: color-mix(in srgb, var(--dot) 28%, var(--color-ink));
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--dot) 32%, transparent),
+      0 0 14px 1px color-mix(in srgb, var(--dot) 70%, transparent);
+  }
+
+  .feature-dot__icon {
+    color: inherit;
+  }
+
+  /* Until the list scrolls into view the boxes are empty. They then fill one after another. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .feature-list > li:not(:global(.is-revealed)) .feature-dot {
+      background-color: transparent;
+      color: transparent;
+      box-shadow: inset 0 0 0 1.5px rgb(22 33 58 / 0.16);
+    }
+
+    :global(.js) .feature-dot {
+      transition:
+        background-color 460ms ease,
+        color 380ms ease,
+        box-shadow 460ms ease;
+      transition-delay: calc(var(--i) * 180ms);
     }
   }
 </style>

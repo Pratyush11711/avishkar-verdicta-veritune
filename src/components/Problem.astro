@@ -7,8 +7,8 @@ import MediaSlot from './ui/MediaSlot.astro';
 import Reveal from './ui/Reveal.astro';
 ---
 
-<section id={SECTION_IDS.problem} aria-labelledby="problem-heading" class="section-y">
-  <div class="page grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
+<section id={SECTION_IDS.problem} aria-labelledby="problem-heading" class="section-y glow-sky overflow-x-clip">
+  <div class="page grid items-center gap-10 lg:grid-cols-12 lg:gap-8" data-reveal data-slide="left">
     <Reveal class="lg:col-span-6 lg:pr-6">
       <h2 id="problem-heading" class="text-h2">
         <Accent text={problem.heading} />

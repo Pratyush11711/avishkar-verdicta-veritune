@@ -8,9 +8,9 @@ import Reveal from './ui/Reveal.astro';
 import RichText from './ui/RichText.astro';
 ---
 
-<section id={SECTION_IDS.multilingual} aria-labelledby="languages-heading" class="section-y">
+<section id={SECTION_IDS.multilingual} aria-labelledby="languages-heading" class="section-y glow-mint overflow-x-clip">
   <div class="page grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
-    <Reveal class="lg:col-span-6 lg:pr-6">
+    <Reveal class="lg:col-span-6 lg:pr-6" data-slide="left">
       <h2 id="languages-heading" class="text-h2">{multilingual.heading}</h2>
       <p class="mt-6 max-w-[68ch] text-body"><RichText segments={multilingual.body} /></p>
       {
@@ -55,7 +55,7 @@ import RichText from './ui/RichText.astro';
       </div>
     </Reveal>
 
-    <Reveal class="lg:col-span-6">
+    <Reveal class="lg:col-span-6" data-slide="right">
       <MediaSlot
         image={images.multilingual}
         label="IMG 5 · 4:3"
