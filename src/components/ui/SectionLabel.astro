@@ -3,9 +3,12 @@ interface Props {
   /** Aqua = Verdicta, Sky = Veritune. Dot only, never coloured text. */
   dot?: 'aqua' | 'sky' | 'ink';
   class?: string;
+  /** Optional data-anim values, so a section's motion script can target the tag and its dot. */
+  anim?: string;
+  dotAnim?: string;
 }
 
-const { dot = 'ink', class: className } = Astro.props;
+const { dot = 'ink', class: className, anim, dotAnim } = Astro.props;
 
 const dots = {
   aqua: 'bg-aqua ring-aqua/30',
@@ -14,7 +17,7 @@ const dots = {
 };
 ---
 
-<p class:list={['flex items-center gap-2.5 text-[0.9375rem] font-medium text-ink', className]}>
-  <span class:list={['size-2 shrink-0 rounded-full ring-4', dots[dot]]} aria-hidden="true"></span>
+<p class:list={['flex items-center gap-2.5 text-[0.9375rem] font-medium text-ink', className]} data-anim={anim}>
+  <span class:list={['size-2 shrink-0 rounded-full ring-4', dots[dot]]} aria-hidden="true" data-anim={dotAnim}></span>
   <span><slot /></span>
 </p>

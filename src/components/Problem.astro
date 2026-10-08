@@ -10,26 +10,54 @@ import Reveal from './ui/Reveal.astro';
 <section id={SECTION_IDS.problem} aria-labelledby="problem-heading" class="section-y glow-sky overflow-x-clip">
   <div class="page grid items-center gap-10 lg:grid-cols-12 lg:gap-8" data-reveal data-slide="left">
     <Reveal class="lg:col-span-6 lg:pr-6">
-      <h2 id="problem-heading" class="text-h2">
-        <Accent text={problem.heading} />
+      <h2 id="problem-heading" class="text-h2" data-anim="qa-headline">
+        <Accent text={problem.heading} anim="qa-accent" />
       </h2>
       <div class="mt-6 max-w-[68ch] space-y-5 text-body">
-        {problem.body.map((p) => <p>{p}</p>)}
+        {problem.body.map((p) => <p data-anim="qa-para">{p}</p>)}
       </div>
       <p class="mt-8 flex items-center gap-4 text-lead font-medium text-ink">
-        <span class="h-px w-10 shrink-0 bg-ink/30" aria-hidden="true"></span>
-        {problem.transition}
+        <span class="h-px w-10 shrink-0 origin-left bg-ink/30" aria-hidden="true" data-anim="qa-dash"></span>
+        <span data-anim="qa-transition-text">{problem.transition}</span>
       </p>
     </Reveal>
 
     <Reveal class="lg:col-span-6">
-      <MediaSlot
-        image={images.problem}
-        label="IMG 1 · 4:3"
-        sizes="(min-width: 1024px) 600px, 100vw"
-        class="overflow-hidden rounded-media shadow-glass ring-1 ring-white/70"
-        imgClass="aspect-[4/3] w-full object-cover"
-      />
+      <div class="qa-card-float">
+        <MediaSlot
+          image={images.problem}
+          label="IMG 1 · 4:3"
+          sizes="(min-width: 1024px) 600px, 100vw"
+          class="overflow-hidden rounded-media shadow-glass ring-1 ring-white/70"
+          imgClass="aspect-[4/3] w-full object-cover"
+          data-anim="qa-card"
+        />
+      </div>
     </Reveal>
   </div>
 </section>
+
+<style>
+  /* The idle float (GSAP, y: -8 yoyo) runs on this wrapper so it doesn't fight the
+     clip-path reveal and scroll parallax, which both run on the card/img directly. */
+  .qa-card-float {
+    will-change: transform;
+  }
+
+  /* "small fraction": a thin underline GSAP draws left-to-right by tweening --underline-scale. */
+  :global([data-anim='qa-accent']) {
+    position: relative;
+    --underline-scale: 0;
+  }
+  :global([data-anim='qa-accent'])::after {
+    content: '';
+    position: absolute;
+    left: 0.06em;
+    right: 0.06em;
+    bottom: -0.08em;
+    height: 0.07em;
+    background: currentColor;
+    transform-origin: left center;
+    transform: scaleX(var(--underline-scale));
+  }
+</style>

@@ -10,7 +10,7 @@ const logoHeight = 28;
 const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
 ---
 
-<header data-nav class="fixed inset-x-0 top-4 z-50 px-3 sm:px-4">
+<header data-nav data-anim="nav" class="fixed inset-x-0 top-4 z-50 px-3 sm:px-4">
   <div class="mx-auto max-w-[calc(var(--container-page)+2rem)]">
     <GlassSurface id="nav" radius="auto" class="nav-pill rounded-full">
     <nav
@@ -29,13 +29,13 @@ const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
       </a>
 
       <ul class="nav-switcher hidden items-center gap-8 lg:flex" data-nav-switcher>
-        <li class="nav-switcher__pill" aria-hidden="true" data-nav-pill></li>
+        <li class="nav-switcher__pill" aria-hidden="true" data-anim="nav-pill"></li>
         {
           nav.links.map((l) => (
             <li>
               <a
                 href={l.href}
-                data-nav-item
+                data-anim="nav-link"
                 class="nav-switcher__item inline-flex h-11 items-center rounded-full px-4 text-[0.9375rem] font-medium text-ink/80 transition-colors duration-200 ease-out hover:text-ink"
               >
                 {l.label}
@@ -88,20 +88,32 @@ const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
 
 <style>
   :global(.nav-pill) {
-    --glass-frost: 0.5;
-    --glass-saturation: 1.4;
+    --glass-frost: 0.42;
+    --glass-saturation: 1.55;
+    transform-origin: 50% 50%;
   }
   :global(.nav-sheet) {
     --glass-frost: 0.92;
   }
   [data-scrolled] :global(.nav-pill),
   [data-menu-open] :global(.nav-pill) {
-    --glass-frost: 0.82;
+    --glass-frost: 0.5;
   }
-  [data-scrolled] :global(.nav-pill:not([data-mode='svg'])),
-  [data-menu-open] :global(.nav-pill:not([data-mode='svg'])) {
-    background-color: rgb(255 255 255 / 0.82);
+  /* Stronger drop after 40px. The SVG refraction filter is left alone. */
+  :global([data-anim='nav'].is-scrolled) :global(.nav-pill[data-mode='svg']) {
+    box-shadow:
+      0 0 2px 1px color-mix(in oklch, black, transparent 85%) inset,
+      0 0 10px 4px color-mix(in oklch, black, transparent 90%) inset,
+      0 4px 16px rgb(17 17 26 / 0.05),
+      0 8px 24px rgb(17 17 26 / 0.05),
+      0 16px 56px rgb(17 17 26 / 0.05),
+      0 18px 44px -16px rgb(22 33 58 / 0.35);
+  }
+  :global([data-anim='nav'].is-scrolled) :global(.nav-pill:not([data-mode='svg'])) {
+    background-color: rgb(255 255 255 / 0.72);
     box-shadow: var(--shadow-glass-strong);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    backdrop-filter: blur(28px) saturate(1.6);
   }
   [data-nav] :global(.nav-icon-close),
   [data-menu-open] :global(.nav-icon-open) {
@@ -132,9 +144,8 @@ const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
     top: 4px;
     left: 0;
     z-index: 0;
-    width: var(--pill-w, 0px);
+    width: 0;
     height: calc(100% - 8px);
-    translate: var(--pill-x, 0px) 0;
     border-radius: 99em;
     pointer-events: none;
     opacity: 0;
@@ -148,36 +159,19 @@ const logoWidth = Math.round((logo.width / logo.height) * logoHeight);
       inset 0 -4px 1px -2px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
       0 3px 6px 0 color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
     transform-origin: var(--pill-origin, center);
-    transition:
-      translate 400ms ease-out,
-      width 400ms ease-out,
-      opacity 200ms ease-out;
+    transition: opacity 200ms ease-out;
   }
   .nav-switcher__pill.is-visible {
     opacity: 1;
   }
-  .nav-switcher__pill.is-stretching {
-    animation: liquid-stretch 440ms ease-out;
-  }
-  @keyframes liquid-stretch {
-    0%,
-    100% {
-      scale: 1 1;
-    }
-    50% {
-      scale: var(--pill-stretch, 1.1) 1;
-    }
-  }
   @media (prefers-reduced-motion: reduce) {
     .nav-switcher__pill {
       transition: opacity 160ms ease-out;
-      animation: none;
     }
   }
 </style>
 
 <script>
   import '../scripts/nav.ts';
-  import '../scripts/nav-switcher.ts';
   import '../scripts/glass-surface.ts';
 </script>

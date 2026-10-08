@@ -56,7 +56,8 @@ function mount(el: HTMLElement) {
   el.querySelector('feGaussianBlur')?.setAttribute('stdDeviation', String(DISPLACE));
 
   const paint = () => {
-    const { width, height } = el.getBoundingClientRect();
+    const width = el.clientWidth;
+    const height = el.clientHeight;
     if (width < 2 || height < 2) return;
     const radius = el.dataset.radius === 'auto' ? Math.min(width, height) / 2 : Number(el.dataset.radius) || 20;
     const href = displacementMap(Math.round(width), Math.round(height), radius, filterId);

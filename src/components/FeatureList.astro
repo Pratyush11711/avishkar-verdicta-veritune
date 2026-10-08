@@ -7,54 +7,222 @@ interface Props {
 }
 
 const { features } = Astro.props;
+
+/** Phrases that get the teal highlight sweep after their line lands. */
+const MARKS = [
+  'dead air over 5 seconds',
+  'hold over 60 seconds',
+  '20+ parameters',
+  'Fatal and non-fatal',
+  'Heat maps',
+];
+
+function withMarks(text: string): { text: string; mark: boolean }[] {
+  const parts: { text: string; mark: boolean }[] = [];
+  let rest = text;
+  while (rest.length) {
+    let best: { index: number; phrase: string } | null = null;
+    for (const phrase of MARKS) {
+      const index = rest.indexOf(phrase);
+      if (index >= 0 && (best === null || index < best.index)) best = { index, phrase };
+    }
+    if (!best) {
+      parts.push({ text: rest, mark: false });
+      break;
+    }
+    if (best.index > 0) parts.push({ text: rest.slice(0, best.index), mark: false });
+    parts.push({ text: best.phrase, mark: true });
+    rest = rest.slice(best.index + best.phrase.length);
+  }
+  return parts;
+}
 ---
 
-<ul class="feature-list grid gap-x-10 sm:grid-cols-2" data-reveal-stagger>
-  {
-    features.map((f, i) => (
-      <li class="flex gap-3.5 border-t border-ink/8 py-4 text-[1rem] leading-relaxed text-slate">
-        <span class="feature-dot mt-[0.1em] flex size-5 shrink-0 items-center justify-center rounded-md" style={`--i:${i}`} aria-hidden="true">
-          <Icon name="check" size={12} class="feature-dot__icon" />
-        </span>
-        <span>{f}</span>
-      </li>
-    ))
-  }
-</ul>
+<div class="checklist" data-anim="list">
+  <span class="checklist-beam" data-anim="scan-beam" aria-hidden="true"></span>
+  <ul class="grid gap-x-10 sm:grid-cols-2">
+    {
+      features.map((feature) => (
+        <li class="checklist-row" data-anim="row">
+          <span class="checklist-wash" data-anim="wash" aria-hidden="true"></span>
+          <span class="checklist-spotlight" data-anim="spotlight" aria-hidden="true"></span>
+          <span class="checklist-divider" data-anim="divider" aria-hidden="true"></span>
+          <span class="checklist-dot" data-anim="divider-dot" aria-hidden="true"></span>
+          <span class="checklist-tile" data-anim="tile">
+            <span class="checklist-fill" data-anim="tile-fill" aria-hidden="true"></span>
+            <span class="checklist-ripple" data-anim="ripple" aria-hidden="true"></span>
+            <Icon name="check" size={12} class="checklist-tick" data-anim="tick" />
+          </span>
+          <span class="checklist-text" data-anim="text">
+            {withMarks(feature).map((part) =>
+              part.mark ? <mark data-anim="mark">{part.text}</mark> : part.text,
+            )}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</div>
 
 <style>
-  :global(.js) .feature-list > li {
-    opacity: 1;
-    transform: none;
+  .checklist {
+    --checklist-teal: #1fa8a0;
+    --mark-opacity: 0.18;
+    position: relative;
   }
 
-  /* Every box uses the same mint check. */
-  .feature-dot {
-    background-color: color-mix(in srgb, var(--color-mint) 42%, white);
+  /* Scan beam sits above the rows. Opacity 0 until the timeline reveals it. */
+  .checklist-beam {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 4;
+    height: 2px;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(90deg, transparent 0%, var(--checklist-teal) 50%, transparent 100%);
+    box-shadow: 0 0 18px 3px color-mix(in srgb, var(--checklist-teal) 65%, transparent);
+    filter: blur(0.4px);
+  }
+
+  .checklist-row {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding-block: 1rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-slate);
+  }
+
+  .checklist-wash,
+  .checklist-spotlight {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .checklist-wash {
+    z-index: 0;
+    background: white;
+  }
+
+  .checklist-spotlight {
+    z-index: 1;
+    background: radial-gradient(
+      13rem circle at calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px),
+      rgb(255 255 255 / 0.8),
+      transparent 68%
+    );
+  }
+
+  .checklist-divider {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    z-index: 2;
+    height: 1px;
+    transform-origin: left center;
+    background: rgb(22 33 58 / 0.08);
+  }
+
+  .checklist-dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-top: -0.2rem;
+    border-radius: 999px;
+    pointer-events: none;
+    opacity: 0;
+    background: var(--checklist-teal);
+    box-shadow: 0 0 10px 2px color-mix(in srgb, var(--checklist-teal) 80%, transparent);
+  }
+
+  .checklist-tile {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
+    border-radius: 0.375rem;
     color: var(--color-mint-ink);
+    background: color-mix(in srgb, var(--color-mint) 42%, white);
     box-shadow:
       0 0 0 3px color-mix(in srgb, var(--color-mint) 32%, transparent),
       0 0 14px 1px color-mix(in srgb, var(--color-mint) 70%, transparent);
   }
 
-  .feature-dot__icon {
+  .checklist-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: var(--checklist-teal);
+  }
+
+  .checklist-ripple {
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    border: 1.5px solid var(--checklist-teal);
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .checklist-tick {
+    position: relative;
+    z-index: 1;
+  }
+
+  .checklist-text {
+    position: relative;
+    z-index: 2;
+    display: block;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Highlight sits behind the phrase. --mark-scale is 1 without JS, 0 until the sweep. */
+  :global(mark[data-anim='mark']) {
+    position: relative;
+    z-index: 0;
+    background: none;
     color: inherit;
   }
 
-  /* Until the list scrolls into view the boxes are empty. They then fill one after another. */
-  @media (prefers-reduced-motion: no-preference) {
-    :global(.js) .feature-list > li:not(:global(.is-revealed)) .feature-dot {
-      background-color: transparent;
-      color: transparent;
-      box-shadow: inset 0 0 0 1.5px rgb(22 33 58 / 0.16);
-    }
+  :global(mark[data-anim='mark'])::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0.08em 0;
+    border-radius: 0.15em;
+    background: var(--checklist-teal, #1fa8a0);
+    opacity: var(--mark-opacity, 0.18);
+    transform: scaleX(var(--mark-scale, 1));
+    transform-origin: left center;
+  }
 
-    :global(.js) .feature-dot {
-      transition:
-        background-color 460ms ease,
-        color 380ms ease,
-        box-shadow 460ms ease;
-      transition-delay: calc(var(--i) * 180ms);
-    }
+  /* SplitText injects these wrappers, so they can't carry the component scope attribute. */
+  :global(.checklist-line) {
+    display: block;
+  }
+
+  :global(.checklist-line-mask) {
+    overflow: clip;
   }
 </style>
+
+<script>
+  import '../scripts/animations/checklist.ts';
+</script>

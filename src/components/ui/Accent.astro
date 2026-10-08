@@ -3,9 +3,12 @@ import { splitAccent } from '../../lib/accent';
 
 interface Props {
   text: string;
+  /** Optional data-anim value for the accented <em>, so a section's motion script can target it. */
+  anim?: string;
 }
 
-const parts = splitAccent(Astro.props.text);
+const { text, anim } = Astro.props;
+const parts = splitAccent(text);
 ---
 
-{parts.map((p) => (p.accent ? <em class="accent">{p.text}</em> : p.text))}
+{parts.map((p) => (p.accent ? <em class="accent" data-anim={anim}>{p.text}</em> : p.text))}

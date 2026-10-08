@@ -5,15 +5,10 @@ import { images, heroGeometry } from '../data/media';
 import Button from './ui/Button.astro';
 import MediaSlot from './ui/MediaSlot.astro';
 import FloatingCard from './FloatingCard.astro';
-import { splitAccent, stripAccent } from '../lib/accent';
+import { splitAccent } from '../lib/accent';
 
-/** Headline words for the blur-in. The accent phrase stays one unit so its gradient flows across both words. */
-const tokens = splitAccent(hero.headline).flatMap((p) =>
-  p.accent ? [{ text: p.text, accent: true }] : p.text.split(/\s+/).filter(Boolean).map((text) => ({ text, accent: false })),
-);
-
-const subWords = hero.subhead.split(/\s+/).filter(Boolean);
-const noteWords = hero.underButtons.split(/\s+/).filter(Boolean);
+/** The accent phrase gets its own element so GSAP can target it separately from the rest of the line. */
+const headlineParts = splitAccent(hero.headline);
 
 const { orbs, pulse, orbRadius } = heroGeometry;
 const ratio = images.hero.height / images.hero.width;
@@ -31,56 +26,48 @@ const stageVars = [
 <section id={SECTION_IDS.top} data-hero aria-labelledby="hero-heading" class="hero relative isolate">
   <div class="hero-text page relative z-10 pt-32 text-center sm:pt-36 lg:pt-40" data-hero-text>
     <div class="hero-aurora" aria-hidden="true">
-      <i class="hero-aurora__blob hero-aurora__blob--aqua"></i>
-      <i class="hero-aurora__blob hero-aurora__blob--sky"></i>
-      <i class="hero-aurora__blob hero-aurora__blob--mint"></i>
-      <i class="hero-aurora__blob hero-aurora__blob--apricot"></i>
+      <i class="hero-aurora__blob hero-aurora__blob--aqua" data-anim="blob" data-depth="0.3"></i>
+      <i class="hero-aurora__blob hero-aurora__blob--sky" data-anim="blob" data-depth="0.5"></i>
+      <i class="hero-aurora__blob hero-aurora__blob--mint" data-anim="blob" data-depth="0.7"></i>
+      <i class="hero-aurora__blob hero-aurora__blob--apricot" data-anim="blob" data-depth="0.9"></i>
       <i class="hero-spot"></i>
     </div>
 
     <p
       class="hero-eyebrow glass-flat mx-auto inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.8125rem] font-medium sm:px-4 sm:text-[0.875rem]"
+      data-anim="eyebrow"
     >
       <span class="hero-dot" aria-hidden="true"></span>
       <span class="hero-shiny">{hero.eyebrow}</span>
     </p>
 
-    <h1 id="hero-heading" class="mx-auto mt-6 max-w-[17em] text-hero font-semibold">
-      <span class="sr-only">{stripAccent(hero.headline)}</span>
-      <span aria-hidden="true">
-        {
-          tokens.map((t, i) => (
-            <>
-              <span class:list={['hw', t.accent && 'hw-accent']} style={`--w:${i}`}>
-                {t.accent ? <em class="accent accent-flow">{t.text}</em> : t.text}
-              </span>
-              {i < tokens.length - 1 ? ' ' : null}
-            </>
-          ))
-        }
-      </span>
+    <h1 id="hero-heading" class="mx-auto mt-6 max-w-[17em] text-hero font-semibold" data-anim="headline">
+      {
+        headlineParts.map((p) =>
+          p.accent ? (
+            <em class="accent headline-accent" data-anim="headline-accent">
+              {p.text}
+            </em>
+          ) : (
+            p.text
+          ),
+        )
+      }
     </h1>
 
-    <p class="mx-auto mt-6 max-w-[62ch] text-lead text-slate">
-      <span class="sr-only">{hero.subhead}</span>
-      <span aria-hidden="true">
-        {subWords.map((w, i) => (<><span class="hw" style={`--w:${i};--base:900ms;--step:24ms`}>{w}</span>{i < subWords.length - 1 ? ' ' : null}</>))}
-      </span>
-    </p>
+    <p class="mx-auto mt-6 max-w-[62ch] text-lead text-slate" data-anim="sub">{hero.subhead}</p>
 
-    <div
-      class="hero-rise mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center"
-      style="--base:1750ms"
-    >
-      <Button href={PILOT_CTA_HREF} icon="arrow-right">{hero.primary}</Button>
-      <Button href={`#${SECTION_IDS.pilot}`} variant="secondary" icon="arrow-down">{hero.secondary}</Button>
+    <div class="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+      <Button href={PILOT_CTA_HREF} icon="arrow-right" class="btn-shine" data-anim="cta">
+        {hero.primary}
+      </Button>
+      <Button href={`#${SECTION_IDS.pilot}`} variant="secondary" icon="arrow-down" data-anim="cta">
+        {hero.secondary}
+      </Button>
     </div>
 
-    <p class="mx-auto mt-5 max-w-[64ch] text-[0.9375rem] leading-relaxed text-ink/75">
-      <span class="sr-only">{hero.underButtons}</span>
-      <span aria-hidden="true">
-        {noteWords.map((w, i) => (<><span class="hw" style={`--w:${i};--base:1950ms;--step:30ms`}>{w}</span>{i < noteWords.length - 1 ? ' ' : null}</>))}
-      </span>
+    <p class="mx-auto mt-5 max-w-[64ch] text-[0.9375rem] leading-relaxed text-ink/75" data-anim="microcopy">
+      {hero.underButtons}
     </p>
   </div>
 
@@ -146,9 +133,7 @@ const stageVars = [
     pointer-events: none;
   }
 
-  /* ---------- Hero intro motion ---------- */
-
-  /* Aurora: slow drifting colour behind the headline, faded out toward the edges. */
+  /* Aurora: soft colour behind the headline, faded out toward the edges. GSAP owns the motion. */
   .hero-aurora {
     position: absolute;
     inset: -1rem 0 -7rem;
@@ -164,6 +149,10 @@ const stageVars = [
     border-radius: 9999px;
     filter: blur(56px);
     opacity: 0.55;
+  }
+
+  html.js .hero-aurora__blob[data-anim] {
+    will-change: transform;
   }
 
   .hero-aurora__blob--aqua {
@@ -217,24 +206,16 @@ const stageVars = [
     opacity: 1;
   }
 
-  /* Eyebrow: Shiny Text sweep and a pinging dot. */
+  /* Eyebrow: Shiny Text sweep; the dot's pulse is driven by GSAP. */
   .hero-eyebrow {
     color: rgb(22 33 58 / 0.78);
   }
 
   .hero-dot {
-    position: relative;
+    display: inline-block;
     width: 0.375rem;
     height: 0.375rem;
     border-radius: 9999px;
-    background: var(--color-aqua);
-  }
-
-  .hero-dot::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
     background: var(--color-aqua);
   }
 
@@ -247,23 +228,8 @@ const stageVars = [
     background-clip: text;
   }
 
-  /* Headline words. */
-  .hw {
-    display: inline-block;
-  }
-
-  .hw-accent {
-    position: relative;
-    white-space: nowrap;
-  }
-
-  .accent-flow {
-    /* background-clip:text only paints inside the box, so give descenders (y, p) and the
-       italic overhang room, and pull the layout back with negative margins. */
-    padding-block: 0.06em 0.22em;
-    padding-left: 0.06em;
-    margin-block: -0.06em -0.22em;
-    margin-left: -0.06em;
+  /* The accent phrase: a static gradient fill. GSAP sweeps its background-position once after the reveal. */
+  .headline-accent {
     background-image: linear-gradient(
       100deg,
       var(--color-ink) 0%,
@@ -273,87 +239,24 @@ const stageVars = [
       var(--color-ink) 100%
     );
     background-size: 240% 100%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding-block: 0.06em 0.22em;
+    padding-left: 0.06em;
+    margin-block: -0.06em -0.22em;
+    margin-left: -0.06em;
+    display: inline-block;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .hero-aurora__blob--aqua {
-      animation: aurora-a 17s ease-in-out infinite alternate;
-    }
-    .hero-aurora__blob--sky {
-      animation: aurora-b 21s ease-in-out infinite alternate;
-    }
-    .hero-aurora__blob--mint {
-      animation: aurora-c 19s ease-in-out infinite alternate;
-    }
-    .hero-aurora__blob--apricot {
-      animation: aurora-a 23s ease-in-out infinite alternate-reverse;
-    }
-
-    .hero-eyebrow {
-      animation: hero-drop 700ms var(--ease-out-soft) both;
-    }
-
     .hero-shiny {
       animation: hero-shine 3.4s linear 1.2s infinite;
     }
 
-    .hero-dot::after {
-      animation: hero-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
-    }
-
-    .hw {
-      animation: hero-word 900ms var(--ease-out-soft) both;
-      animation-delay: calc(var(--base, 220ms) + var(--w) * var(--step, 95ms));
-    }
-
-    .accent-flow {
-      animation: accent-flow 7s ease-in-out 1.4s infinite alternate;
-    }
-
-    /* Buttons use the same blur-in as the headline words. */
-    .hero-rise {
-      animation: hero-word 900ms var(--ease-out-soft) both;
-      animation-delay: var(--base, 1500ms);
-    }
-
-    .hero-stage > :global(picture) {
-      animation: hero-zoom 2.4s var(--ease-out-soft) both;
-      transform-origin: 50% 20%;
-    }
-
-    :global([data-offscreen]) .hero-aurora__blob,
-    :global([data-offscreen]) .hero-shiny,
-    :global([data-offscreen]) .accent-flow,
-    :global([data-offscreen]) .hero-dot::after {
+    :global([data-offscreen]) .hero-shiny {
       animation-play-state: paused;
-    }
-  }
-
-  @keyframes hero-word {
-    from {
-      opacity: 0;
-      filter: blur(14px);
-      transform: translateY(0.4em);
-    }
-    55% {
-      opacity: 1;
-      filter: blur(4px);
-    }
-    to {
-      opacity: 1;
-      filter: blur(0);
-      transform: none;
-    }
-  }
-
-  @keyframes hero-drop {
-    from {
-      opacity: 0;
-      transform: translateY(-10px) scale(0.96);
-    }
-    to {
-      opacity: 1;
-      transform: none;
     }
   }
 
@@ -363,50 +266,6 @@ const stageVars = [
     }
     to {
       background-position: -30% 0;
-    }
-  }
-
-  @keyframes hero-ping {
-    75%,
-    100% {
-      transform: scale(3.2);
-      opacity: 0;
-    }
-  }
-
-  @keyframes accent-flow {
-    from {
-      background-position: 0% 50%;
-    }
-    to {
-      background-position: 100% 50%;
-    }
-  }
-
-  @keyframes hero-zoom {
-    from {
-      transform: scale(1.06);
-    }
-    to {
-      transform: scale(1);
-    }
-  }
-
-  @keyframes aurora-a {
-    to {
-      transform: translate3d(7rem, 2.5rem, 0) scale(1.18);
-    }
-  }
-
-  @keyframes aurora-b {
-    to {
-      transform: translate3d(-8rem, 3.5rem, 0) scale(0.9);
-    }
-  }
-
-  @keyframes aurora-c {
-    to {
-      transform: translate3d(-4rem, -2.5rem, 0) scale(1.22);
     }
   }
 
@@ -533,17 +392,7 @@ const stageVars = [
     opacity: 0;
   }
 
-  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-    .hero-pulse {
-      display: block;
-    }
-    .hero-pulse__streak {
-      animation: hero-pulse 6.5s cubic-bezier(0.45, 0, 0.55, 1) 1.2s infinite;
-    }
-    :global([data-offscreen]) .hero-pulse__streak {
-      animation-play-state: paused;
-    }
-  }
+  /* The cord image stays still. The traveling light streak is not shown. */
 
   @keyframes hero-pulse {
     0% {
@@ -585,4 +434,5 @@ const stageVars = [
 <script>
   import '../scripts/hero-pulse.ts';
   import '../scripts/hero-spot.ts';
+  import '../scripts/hero-motion.ts';
 </script>

@@ -27,25 +27,32 @@ const image = images[product.key];
 const headingId = `${product.key}-heading`;
 ---
 
-<section id={product.key} aria-labelledby={headingId} class:list={['section-y overflow-x-clip', isVerdicta ? 'glow-aqua' : 'glow-sky']}>
+<section id={product.key} aria-labelledby={headingId} class:list={['product-section section-y overflow-x-clip', isVerdicta ? 'glow-aqua' : 'glow-sky']}>
   <div class="page" data-reveal={slideFrom ? '' : undefined} data-slide={slideFrom}>
     <div class="grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
-      <Reveal class:list={['lg:col-span-5', mirrored && 'lg:order-2 lg:col-start-8']} data-slide={splitSlide ? 'right' : undefined}>
+      <Reveal class:list={['score-card-slot lg:col-span-5', mirrored && 'lg:order-2 lg:col-start-8']} data-slide={splitSlide ? 'right' : undefined}>
         <MediaSlot
           image={image}
           label={`${isVerdicta ? 'IMG 2' : 'IMG 3'} · 1:1`}
           sizes="(min-width: 1024px) 480px, (min-width: 640px) 560px, 100vw"
           class="mx-auto max-w-[35rem] overflow-hidden rounded-media shadow-glass ring-1 ring-white/70 lg:max-w-none"
           imgClass="aspect-square w-full object-cover"
+          data-anim="score-card"
+          data-enter-from={mirrored ? 'right' : 'left'}
         />
+        <span class="score-sweep" aria-hidden="true" data-anim="score-sweep"></span>
       </Reveal>
 
-      <Reveal class:list={['lg:col-span-6', mirrored ? 'lg:order-1 lg:col-start-1' : 'lg:col-start-7']} data-slide={splitSlide ? 'left' : undefined}>
-        <SectionLabel dot={dot}>{product.label}</SectionLabel>
-        <h2 id={headingId} class="mt-5 text-h2">
-          <Accent text={product.heading} />
+      <Reveal
+        class:list={['lg:col-span-6', mirrored ? 'lg:order-1 lg:col-start-1' : 'lg:col-start-7']}
+        data-slide={splitSlide ? 'left' : undefined}
+        data-anim="score-text-col"
+      >
+        <SectionLabel dot={dot} anim="score-tag" dotAnim="score-tag-dot">{product.label}</SectionLabel>
+        <h2 id={headingId} class="mt-5 text-h2" data-anim="score-headline">
+          <Accent text={product.heading} anim="score-accent" />
         </h2>
-        <p class="mt-6 max-w-[68ch] text-body">{product.body}</p>
+        <p class="mt-6 max-w-[68ch] text-body" data-anim="score-body">{product.body}</p>
       </Reveal>
     </div>
 
@@ -62,3 +69,21 @@ const headingId = `${product.key}-heading`;
     </div>
   </div>
 </section>
+
+<style>
+  /* Positioning context for the light-sweep overlay drawn across the image card. */
+  .score-card-slot {
+    position: relative;
+  }
+
+  .score-sweep {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-media);
+    overflow: hidden;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 40%, rgb(255 255 255 / 0.55) 50%, transparent 60%);
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+</style>

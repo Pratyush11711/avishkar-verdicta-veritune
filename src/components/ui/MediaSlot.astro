@@ -14,6 +14,7 @@ interface Props {
   imgClass?: string;
   /** Decorative images inside a section that already explains them. */
   decorative?: boolean;
+  [key: string]: unknown;
 }
 
 const {
@@ -25,6 +26,7 @@ const {
   class: className,
   imgClass,
   decorative = false,
+  ...rest
 } = Astro.props;
 
 const srcset = image?.webp.map((s) => `${s.src} ${s.w}w`).join(', ');
@@ -33,7 +35,7 @@ const mobilePos = cropOnMobile && !image?.mobileSrc ? image?.mobileObjectPositio
 
 {
   image ? (
-    <picture class:list={['block', className]}>
+    <picture class:list={['block', className]} {...rest}>
       {image.mobileSrc && <source media="(max-width: 767px)" srcset={image.mobileSrc} />}
       <source type="image/webp" srcset={srcset} sizes={sizes} />
       <img

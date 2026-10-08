@@ -1,0 +1,414 @@
+---
+// Section 3 — a real HTML/SVG dashboard mock (not a screenshot), so GSAP can animate
+// every piece of it: sidebar, stat cards, bar chart and the gauge.
+import Icon from './ui/Icon.astro';
+
+const SIDEBAR_ITEMS = ['Overview', 'Calls', 'Agents', 'Reports', 'Settings'];
+const FILTERS = ['This week', 'All teams'];
+
+const STATS = [
+  { label: 'Calls scored', to: 96, suffix: '%' },
+  { label: 'Avg handle time', to: 34, suffix: 's' },
+  { label: 'Flags today', to: 4, suffix: '' },
+];
+
+// Deterministic bar heights so the chart renders the same on every build.
+const BAR_COUNT = 12;
+const bars = Array.from({ length: BAR_COUNT }, (_, i) => Math.round(30 + Math.abs(Math.sin(i * 1.7)) * 65));
+const highlighted = new Set([2, 6, 9]);
+
+const GAUGE_PCT = 83;
+const GAUGE_R = 40;
+const GAUGE_CIRCUMFERENCE = 2 * Math.PI * GAUGE_R;
+---
+
+<section id="dashboard-showcase" aria-labelledby="dashboard-heading" class="section-y glow-aqua overflow-x-clip">
+  <div class="page">
+    <p class="label-eyebrow" data-anim="dash-eyebrow">Live view</p>
+    <h2 id="dashboard-heading" class="mt-3 max-w-[28ch] text-h2">Every call, scored the moment it lands</h2>
+
+    <div class="dash-wrap mt-12 lg:mt-16">
+      <div class="dash-shadow" aria-hidden="true" data-anim="dash-shadow"></div>
+
+      <div class="dash-card" data-anim="dash-card">
+        <nav class="dash-sidebar" aria-label="Dashboard sections">
+          <ul>
+            {
+              SIDEBAR_ITEMS.map((label, i) => (
+                <li class:list={['dash-sidebar-item', i === 0 && 'is-active']} data-anim="dash-sidebar-item">
+                  {label}
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <div class="dash-main">
+          <header class="dash-head">
+            <h3 class="dash-title" data-anim="dash-title">Dashboard</h3>
+            <div class="dash-buttons" data-anim="dash-buttons">
+              <button type="button" class="dash-icon-btn" data-anim="dash-refresh" aria-label="Refresh data">
+                <Icon name="refresh-cw" size={15} />
+              </button>
+              <button type="button" class="dash-btn">Export</button>
+            </div>
+          </header>
+
+          <div class="dash-filters">
+            {
+              FILTERS.map((label) => (
+                <span class="dash-filter" data-anim="dash-filter">
+                  {label}
+                  <Icon name="chevron-down" size={14} />
+                </span>
+              ))
+            }
+          </div>
+
+          <div class="dash-stats">
+            {
+              STATS.map((s) => (
+                <div class="dash-stat" data-anim="dash-stat" data-to={s.to} data-suffix={s.suffix}>
+                  <p class="dash-stat__label">{s.label}</p>
+                  <p class="dash-stat__value">
+                    <span data-anim="dash-stat-number">0</span>
+                    {s.suffix}
+                  </p>
+                </div>
+              ))
+            }
+          </div>
+
+          <div class="dash-body-grid">
+            <div class="dash-chart">
+              <div class="dash-bars">
+                {
+                  bars.map((h, i) => (
+                    <span
+                      class:list={['dash-bar', highlighted.has(i) && 'is-highlight']}
+                      data-anim="dash-bar"
+                      data-highlight={highlighted.has(i) ? 'true' : 'false'}
+                      style={`--h:${h}%`}
+                    />
+                  ))
+                }
+              </div>
+            </div>
+
+            <div class="dash-gauge">
+              <div class="dash-gauge__ring">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <circle class="dash-gauge__track" cx="50" cy="50" r={GAUGE_R} />
+                  <circle
+                    class="dash-gauge__arc"
+                    data-anim="dash-gauge-arc"
+                    data-pct={GAUGE_PCT}
+                    data-circumference={GAUGE_CIRCUMFERENCE.toFixed(2)}
+                    cx="50"
+                    cy="50"
+                    r={GAUGE_R}
+                  />
+                </svg>
+                <p class="dash-gauge__number" data-anim="dash-gauge-number" data-to={GAUGE_PCT}>0%</p>
+              </div>
+              <ul class="dash-legend" data-anim="dash-legend">
+                <li><span class="dot dot--pass"></span>Pass 68%</li>
+                <li><span class="dot dot--flag"></span>Flag 15%</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .label-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--color-slate);
+  }
+
+  .dash-wrap {
+    position: relative;
+  }
+
+  /* A separate blurred shadow layer. GSAP grows its opacity as the card settles. */
+  .dash-shadow {
+    position: absolute;
+    inset: 2rem 3%;
+    border-radius: 2rem;
+    background: color-mix(in srgb, var(--color-ink) 28%, transparent);
+    filter: blur(44px);
+    opacity: 0;
+    z-index: -1;
+  }
+
+  .dash-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    background: rgb(255 255 255 / 0.88);
+    border: 1px solid rgb(22 33 58 / 0.08);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--color-ink) 5%, transparent);
+    transform-style: preserve-3d;
+  }
+
+  @media (min-width: 900px) {
+    .dash-card {
+      grid-template-columns: 13rem 1fr;
+    }
+  }
+
+  .dash-sidebar {
+    display: none;
+    background: color-mix(in srgb, var(--color-frost) 55%, white);
+    border-right: 1px solid rgb(22 33 58 / 0.07);
+    padding: 1.5rem 1rem;
+  }
+
+  @media (min-width: 900px) {
+    .dash-sidebar {
+      display: block;
+    }
+  }
+
+  .dash-sidebar ul {
+    display: grid;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .dash-sidebar-item {
+    border-radius: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-slate);
+  }
+
+  .dash-sidebar-item.is-active {
+    background: color-mix(in srgb, var(--color-aqua) 24%, white);
+    color: var(--color-ink);
+  }
+
+  .dash-main {
+    padding: 1.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .dash-main {
+      padding: 2rem 2.25rem;
+    }
+  }
+
+  .dash-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .dash-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .dash-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .dash-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-ink) 5%, white);
+  }
+
+  .dash-btn {
+    border-radius: 999px;
+    padding: 0.45rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: white;
+    background: var(--color-ink);
+  }
+
+  .dash-filters {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+  }
+
+  .dash-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-slate);
+    background: color-mix(in srgb, var(--color-ink) 4%, white);
+    border: 1px solid rgb(22 33 58 / 0.08);
+  }
+
+  .dash-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .dash-stat {
+    border-radius: 1rem;
+    padding: 0.9rem 1rem;
+    background: color-mix(in srgb, var(--color-ink) 3%, white);
+    border: 1px solid rgb(22 33 58 / 0.06);
+  }
+
+  .dash-stat__label {
+    font-size: 0.75rem;
+    color: var(--color-slate);
+  }
+
+  .dash-stat__value {
+    margin-top: 0.25rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .dash-body-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1.75rem;
+  }
+
+  @media (min-width: 720px) {
+    .dash-body-grid {
+      grid-template-columns: 1fr 14rem;
+    }
+  }
+
+  .dash-chart {
+    border-radius: 1rem;
+    padding: 1.25rem;
+    background: color-mix(in srgb, var(--color-ink) 3%, white);
+    border: 1px solid rgb(22 33 58 / 0.06);
+  }
+
+  .dash-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    height: 8rem;
+  }
+
+  .dash-bar {
+    flex: 1 1 0;
+    height: var(--h);
+    border-radius: 0.3rem 0.3rem 0 0;
+    background: color-mix(in srgb, var(--color-aqua) 70%, white);
+    transform-origin: bottom;
+  }
+
+  .dash-bar.is-highlight {
+    background: var(--color-apricot);
+  }
+
+  .dash-gauge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    background: color-mix(in srgb, var(--color-ink) 3%, white);
+    border: 1px solid rgb(22 33 58 / 0.06);
+  }
+
+  .dash-gauge__ring {
+    position: relative;
+    width: 7rem;
+    height: 7rem;
+  }
+
+  .dash-gauge svg {
+    width: 7rem;
+    height: 7rem;
+    transform: rotate(-90deg);
+  }
+
+  .dash-gauge__track {
+    fill: none;
+    stroke: color-mix(in srgb, var(--color-ink) 8%, transparent);
+    stroke-width: 8;
+  }
+
+  .dash-gauge__arc {
+    fill: none;
+    stroke: var(--color-aqua);
+    stroke-width: 8;
+    stroke-linecap: round;
+  }
+
+  .dash-gauge__number {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .dash-legend {
+    display: flex;
+    gap: 0.75rem;
+    list-style: none;
+    margin: 1.75rem 0 0;
+    padding: 0;
+    font-size: 0.75rem;
+    color: var(--color-slate);
+  }
+
+  .dash-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .dash-legend .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+  }
+
+  .dash-legend .dot--pass {
+    background: var(--color-aqua);
+  }
+
+  .dash-legend .dot--flag {
+    background: var(--color-apricot);
+  }
+</style>

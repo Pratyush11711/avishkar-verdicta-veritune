@@ -9,7 +9,7 @@ interface Props {
   class?: string;
 }
 
-const { href, variant = 'primary', size = 'md', icon, class: className } = Astro.props;
+const { href, variant = 'primary', size = 'md', icon, class: className, ...rest } = Astro.props;
 
 const base =
   'group inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-[transform,box-shadow,background-color,color] duration-200 ease-out min-h-11';
@@ -28,7 +28,7 @@ const variants = {
 };
 ---
 
-<a href={href} class:list={[base, variant !== 'text' && sizes[size], variants[variant], className]}>
+<a href={href} class:list={[base, variant !== 'text' && sizes[size], variants[variant], className]} {...rest}>
   <slot />
   {
     icon && (

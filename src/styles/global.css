@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* GSAP hero intro: hide [data-anim] targets until the script reveals them with autoAlpha,
+   so a no-JS visitor (html lacks the .js class added inline in <head>) still sees everything. */
+html.js [data-anim] {
+  visibility: hidden;
+}
+
 /* Metric-adjusted local fallbacks so the swap to the web fonts barely shifts layout. */
 @font-face {
   font-family: "Instrument Sans Fallback";
